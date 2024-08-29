@@ -12,6 +12,7 @@ async function main() {
             name: "Admin",
             email: "admin@gmail.com",
             password: adminPasswordHash,
+            role: "ADMIN",
         },
     });
 
@@ -266,23 +267,38 @@ async function main() {
     });
 
     const generalAdmissionTicket1 = await prisma.ticket.findFirst({
-        where: { type: "GENERAL_ADMISSION", eventId: (await prisma.event.findFirst({ where: { name: "Jazz & Blues Festival" } }))?.id! },
+        where: {
+            type: "GENERAL_ADMISSION",
+            eventId: (await prisma.event.findFirst({ where: { name: "Jazz & Blues Festival" } }))?.id!,
+        },
     });
 
     const vipTicket1 = await prisma.ticket.findFirst({
-        where: { type: "VIP", eventId: (await prisma.event.findFirst({ where: { name: "Jazz & Blues Festival" } }))?.id! },
+        where: {
+            type: "VIP",
+            eventId: (await prisma.event.findFirst({ where: { name: "Jazz & Blues Festival" } }))?.id!,
+        },
     });
 
     const earlyBirdTicket2 = await prisma.ticket.findFirst({
-        where: { type: "EARLY_BIRD", eventId: (await prisma.event.findFirst({ where: { name: "Electronic Music Carnival" } }))?.id! },
+        where: {
+            type: "EARLY_BIRD",
+            eventId: (await prisma.event.findFirst({ where: { name: "Electronic Music Carnival" } }))?.id!,
+        },
     });
 
     const generalAdmissionTicket3 = await prisma.ticket.findFirst({
-        where: { type: "GENERAL_ADMISSION", eventId: (await prisma.event.findFirst({ where: { name: "Rock Legends Reunion" } }))?.id! },
+        where: {
+            type: "GENERAL_ADMISSION",
+            eventId: (await prisma.event.findFirst({ where: { name: "Rock Legends Reunion" } }))?.id!,
+        },
     });
 
     const vipTicket3 = await prisma.ticket.findFirst({
-        where: { type: "VIP", eventId: (await prisma.event.findFirst({ where: { name: "Rock Legends Reunion" } }))?.id! },
+        where: {
+            type: "VIP",
+            eventId: (await prisma.event.findFirst({ where: { name: "Rock Legends Reunion" } }))?.id!,
+        },
     });
 
     const merchandise1 = await prisma.merchandise.findFirst({
@@ -297,7 +313,16 @@ async function main() {
         where: { eventId: (await prisma.event.findFirst({ where: { name: "Rock Legends Reunion" } }))?.id! },
     });
 
-    if (!generalAdmissionTicket1 || !vipTicket1 || !earlyBirdTicket2 || !generalAdmissionTicket3 || !vipTicket3 || !merchandise1 || !merchandise2 || !merchandise3) {
+    if (
+        !generalAdmissionTicket1 ||
+        !vipTicket1 ||
+        !earlyBirdTicket2 ||
+        !generalAdmissionTicket3 ||
+        !vipTicket3 ||
+        !merchandise1 ||
+        !merchandise2 ||
+        !merchandise3
+    ) {
         throw new Error("Required entity (ticket or merchandise) not found");
     }
 
