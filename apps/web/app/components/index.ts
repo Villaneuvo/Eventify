@@ -1,4 +1,5 @@
-import Link from "./Link";
 import EventGenreBadge from "./EventGenreBadge";
+import Link from "./Link";
+import Skeleton from "./Skeleton";
 
-export { Link, EventGenreBadge };
+export { EventGenreBadge, Link, Skeleton };
