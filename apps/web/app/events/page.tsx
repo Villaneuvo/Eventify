@@ -8,6 +8,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { EventGenreBadge } from "../components";
 import EventAction from "./EventAction";
+import EventLoadingPage from "./loading";
 
 const EventPage = () => {
     const { data: session } = useSession();
@@ -70,11 +71,7 @@ const EventPage = () => {
     };
 
     if (isLoading) {
-        return (
-            <div className="flex justify-center items-center h-full">
-                <div>Loading...</div>
-            </div>
-        );
+        return <EventLoadingPage />;
     }
 
     if (error) {
