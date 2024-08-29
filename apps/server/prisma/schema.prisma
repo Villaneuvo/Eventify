@@ -1,0 +1,168 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String    @id @default(uuid())
+  name           String
+  email          String    @unique
+  password       String
+  role           Role      @default(ATTENDEE)
+  referralCode   String?   @unique
+  pointsEarned   Int       @default(0)
+  pointsRedeemed Int       @default(0)
+  pointsExpiry   DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  events      Event[]       @relation("OrganizerEvents")
+  tickets     Ticket[]
+  referrals   Referral[]
+  Review      Review[]
+  Transaction Transaction[]
+  AuthUser    AuthUser[]
+}
+
+enum Role {
+  ATTENDEE
+  ORGANIZER
+  ADMIN
+}
+
+model AuthUser {
+  id       String @id @default(uuid())
+  userId   String
+  authUUID String
+
+  // Relations
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Event {
+  id          String   @id @default(uuid())
+  name        String
+  description String
+  genre       Genre
+  date        DateTime
+  location    String
+  price       Float
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  organizerId String
+  organizer   User          @relation("OrganizerEvents", fields: [organizerId], references: [id])
+  tickets     Ticket[]
+  reviews     Review[]
+  promotions  Promotion[]
+  merchandise Merchandise[]
+}
+
+enum Genre {
+  ELECTRONIC
+  INDIE
+  JAZZ
+  ROCK
+  POP
+  HIPHOP
+}
+
+model Ticket {
+  id       String     @id @default(uuid())
+  type     TicketType
+  price    Float
+  issuedAt DateTime   @default(now())
+  redeemed Boolean    @default(false)
+
+  // Relations
+  eventId     String
+  event       Event         @relation(fields: [eventId], references: [id])
+  userId      String
+  user        User          @relation(fields: [userId], references: [id])
+  Transaction Transaction[]
+}
+
+enum TicketType {
+  GENERAL_ADMISSION
+  VIP
+  EARLY_BIRD
+}
+
+model Review {
+  id        String   @id @default(uuid())
+  rating    Int
+  comment   String?
+  createdAt DateTime @default(now())
+
+  // Relations
+  userId  String
+  user    User   @relation(fields: [userId], references: [id])
+  eventId String
+  event   Event  @relation(fields: [eventId], references: [id])
+}
+
+model Referral {
+  id   String @id @default(uuid())
+  code String @unique
+
+  // Relations
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+}
+
+model Promotion {
+  id         String   @id @default(uuid())
+  code       String   @unique
+  discount   Float
+  validFrom  DateTime
+  validUntil DateTime
+  usageCount Int      @default(0)
+
+  // Relations
+  eventId     String
+  event       Event         @relation(fields: [eventId], references: [id])
+  Transaction Transaction[]
+}
+
+model Merchandise {
+  id          String   @id @default(uuid())
+  name        String
+  description String
+  price       Float
+  stock       Int
+  createdAt   DateTime @default(now())
+
+  // Relations
+  eventId     String
+  event       Event         @relation(fields: [eventId], references: [id])
+  Transaction Transaction[]
+}
+
+model Transaction {
+  id        String   @id @default(uuid())
+  amount    Float
+  createdAt DateTime @default(now())
+
+  // Relations
+  userId        String
+  user          User         @relation(fields: [userId], references: [id])
+  ticketId      String?
+  ticket        Ticket?      @relation(fields: [ticketId], references: [id])
+  merchandiseId String?
+  merchandise   Merchandise? @relation(fields: [merchandiseId], references: [id])
+  promotionId   String?
+  promotion     Promotion?   @relation(fields: [promotionId], references: [id])
+}
