@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import AuthProvider from "./auth/Provider";
-import "./globals.css";
 import NavigationBar from "./components/section/navigation/NavBar";
+import "./globals.css";
 
 
 const poppins = Poppins({

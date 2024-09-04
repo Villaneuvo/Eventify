@@ -167,7 +167,7 @@ export default function NavigationBar() {
               leaveFrom="opacity-100 translate-y-0"
               leaveTo="opacity-0 translate-y-1"
             >
-              <PopoverPanel className="rounded-3xl absolute -right-7 top-full z-10 mt-3 w-[20rem] max-w-md overflow-hidden bg-white shadow-nav-btn-shadow ring-1 ring-gray-900/5 md:right-3">
+              <PopoverPanel className="rounded-3xl absolute -right-7 top-full z-30 mt-3 w-[20rem] max-w-md overflow-hidden bg-white shadow-nav-btn-shadow ring-1 ring-gray-900/5 md:right-3">
                 <div className="p-4 pb-0 text-text-main">
                   {filteredAccount.map((item) => (
                     <div
@@ -187,7 +187,7 @@ export default function NavigationBar() {
                   ))}
                 </div>
                 <div className="col-span-full my-1 h-px border-0 bg-zinc-950/50 dark:bg-text-main/25 forced-colors:bg-[CanvasText]" />
-                <div className="p-4 pb-0 pt-0 text-text-main md:pb-4">
+                <div className="relative p-4 pb-0 pt-0 text-text-main md:pb-4 z-30">
                   {eventifyFeatures.map((item) => (
                     <div
                       key={item.name}
