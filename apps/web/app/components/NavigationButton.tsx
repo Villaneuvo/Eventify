@@ -22,7 +22,7 @@ const NavigationButton = () => {
     },
   ];
   return (
-    <NavigationMenu.Root className="relative z-[1] flex w-[24.688rem] justify-end md:-ml-80 lg:-ml-72">
+    <NavigationMenu.Root className="relative z-[1] flex w-[24.688rem] justify-end md:-ml-80  lg:-ml-72">
       <NavigationMenu.List className="relative mx-0 flex w-[5.875rem] justify-center rounded-[1.875rem] bg-main-color shadow-nav-btn-shadow hover:bg-red-400">
         <NavigationMenu.Item>
           <NavigationMenu.Trigger>

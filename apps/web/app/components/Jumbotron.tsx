@@ -9,10 +9,10 @@ export default function Jumbotron() {
   const [isMagHovered, setMagHovered] = useState(false);
 
   return (
-    <section className="xs:flex-col-reverse flex lg:flex-row">
+    <section className="flex xs:flex-col-reverse lg:flex-row">
       <div className="flex min-h-full md:mx-[4.688rem] lg:mx-[6.25rem] xl:mx-[7.813rem]">
         <div className="xs:mt-5 lg:mt-32">
-          <h1 className="xs:w-[618px] xs:leading-normal text-3xl font-bold lg:w-[24.5rem] lg:text-3xl lg:leading-normal xl:w-[32.5rem] xl:text-4xl xl:leading-normal">
+          <h1 className="text-3xl font-bold xs:w-[618px] xs:leading-normal lg:w-[24.5rem] lg:text-3xl lg:leading-normal xl:w-[32.5rem] xl:text-4xl xl:leading-normal">
             Everything You Need for Perfect Music Event Adventures.
           </h1>
           <p className="mt-5 text-justify text-base font-light leading-relaxed lg:w-[22.5rem] xl:w-[26.5rem]">
@@ -24,7 +24,7 @@ export default function Jumbotron() {
           <div className="mt-5 flex flex-row">
             <Link href={"/"}>
               <button
-                className="flex flex-row items-center rounded-lg border-[3px] border-btn-jumbotron bg-btn-jumbotron p-3 text-sm font-medium text-bg-main shadow-jumbtron-btn-shadow hover:border-[3px] hover:border-main-color hover:bg-white hover:text-dark-charcoal xl:text-base"
+                className="rounded-lg flex flex-row items-center border-[3px] border-btn-jumbotron bg-btn-jumbotron p-3 text-sm font-medium text-bg-main shadow-jumbtron-btn-shadow hover:border-[3px] hover:border-main-color hover:bg-white hover:text-dark-charcoal xl:text-base"
                 onMouseEnter={() => setCompassHovered(true)}
                 onMouseLeave={() => setCompassHovered(false)}
               >
@@ -42,7 +42,7 @@ export default function Jumbotron() {
             </Link>
             <Link href={"/api/auth/signin"} className="ml-5">
               <button
-                className="flex flex-row items-center rounded-lg border-[3px] border-main-color p-3 text-sm font-medium text-dark-charcoal shadow-jumbtron-btn-shadow hover:border-[3px] hover:border-btn-jumbotron hover:bg-btn-jumbotron hover:text-bg-main xl:text-base"
+                className="rounded-lg flex flex-row items-center border-[3px] border-main-color p-3 text-sm font-medium text-dark-charcoal shadow-jumbtron-btn-shadow hover:border-[3px] hover:border-btn-jumbotron hover:bg-btn-jumbotron hover:text-bg-main xl:text-base"
                 onMouseEnter={() => setMagHovered(true)}
                 onMouseLeave={() => setMagHovered(false)}
               >
