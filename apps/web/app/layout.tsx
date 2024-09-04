@@ -4,6 +4,7 @@ import AuthProvider from "./auth/Provider";
 import "./globals.css";
 import NavigationBar from "./components/section/navigation/NavBar";
 
+
 const poppins = Poppins({
   weight: ["200", "300", "400", "500", "600", "700", "800", "900"],
   subsets: ["latin"],
