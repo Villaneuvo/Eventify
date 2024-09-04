@@ -29,6 +29,7 @@ const config: Config = {
       },
     },
     screens: {
+      xs: "360px",
       xs: "375px",
       sm: "640px",
       md: "768px",
@@ -37,7 +38,21 @@ const config: Config = {
       "2xl": "1440px",
       "3xl": "1536px",
     },
+    borderRadius: {
+      none: "0",
+      sm: "0.125rem",
+      DEFAULT: "0.25rem",
+      md: "0.375rem",
+      lg: "0.5rem",
+      xl: "0.75rem",
+      "2xl": "1rem",
+      "3xl": "1.5rem",
+      "4xl": "1.875rem",
+    },
+    maxWidth: {
+      "8xl": "90rem",
+    },
   },
-  plugins: [],
+  plugins: [require("@tailwindcss/forms")],
 };
 export default config;
