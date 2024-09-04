@@ -8,6 +8,7 @@ import {
   Transition,
 } from "@headlessui/react";
 import { MapPinIcon } from "@heroicons/react/24/outline";
+
 import classNames from "classnames";
 import { useSession } from "next-auth/react";
 import Image from "next/image";

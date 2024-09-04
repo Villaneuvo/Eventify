@@ -1,86 +1,232 @@
 "use client";
 
+import {
+  Popover,
+  PopoverButton,
+  PopoverGroup,
+  PopoverPanel,
+  Transition,
+} from "@headlessui/react";
+import { MapPinIcon } from "@heroicons/react/24/outline";
+import classNames from "classnames";
+import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { usePathname } from "next/navigation";
 
-export default function Jumbotron() {
-  const [isCompassHovered, setCompassHovered] = useState(false);
-  const [isMagHovered, setMagHovered] = useState(false);
+const account = [
+  {
+    name: "Create an account",
+    href: "#",
+  },
+  {
+    name: "Sign In",
+    href: "/api/auth/signin",
+  },
+  {
+    name: "Sign Out",
+    href: "/api/auth/signout",
+  },
+];
+
+const eventifyFeatures = [
+  {
+    name: "Claim Your Rewards",
+    href: "#",
+  },
+  {
+    name: "Find Events",
+    href: "#",
+  },
+  {
+    name: "Eventify Your Events",
+    href: "#",
+  },
+];
+
+const mobileNavigation = [
+  {
+    name: "Jakarta Pusat",
+    href: "#",
+  },
+];
+
+const navigation = [
+  { name: "Find events", href: "/account", icon: null },
+  { name: "Eventify your events", href: "/ticket", icon: null },
+  { name: "Jakarta Pusat", href: "/transaction", icon: MapPinIcon },
+];
+
+export default function NavigationBar() {
+  const { status } = useSession();
+  const currentPath = usePathname();
+
+  const filteredAccount = account.filter((item) => {
+    if (status === "authenticated" && item.name === "Sign Out") return true;
+    if (status === "unauthenticated" && item.name === "Sign In") return true;
+    if (status === "unauthenticated" && item.name === "Create an account")
+      return true;
+    return false;
+  });
 
   return (
-    <section className="flex xs:flex-col-reverse lg:flex-row">
-      <div className="flex min-h-full md:mx-[4.688rem] lg:mx-[6.25rem] xl:mx-[7.813rem]">
-        <div className="xs:mt-5 lg:mt-32">
-          <h1 className="text-3xl font-bold xs:w-[618px] xs:leading-normal lg:w-[24.5rem] lg:text-3xl lg:leading-normal xl:w-[32.5rem] xl:text-4xl xl:leading-normal">
-            Everything You Need for Perfect Music Event Adventures.
-          </h1>
-          <p className="mt-5 text-justify text-base font-light leading-relaxed lg:w-[22.5rem] xl:w-[26.5rem]">
-            with eventify, your go-to for both planning and enjoying events.
-            Organizers can effortlessly manage their events, while guests can
-            find and book exciting experiences. Explore now and create
-            unforgettable moments!
-          </p>
-          <div className="mt-5 flex flex-row">
-            <Link href={"/"}>
-              <button
-                className="rounded-lg flex flex-row items-center border-[3px] border-btn-jumbotron bg-btn-jumbotron p-3 text-sm font-medium text-bg-main shadow-jumbtron-btn-shadow hover:border-[3px] hover:border-main-color hover:bg-white hover:text-dark-charcoal xl:text-base"
-                onMouseEnter={() => setCompassHovered(true)}
-                onMouseLeave={() => setCompassHovered(false)}
-              >
-                <picture>
+    <header className="border-b-2 bg-white">
+      <nav
+        className="max-w-8xl mx-[3.125rem] flex items-center justify-between py-4 md:mx-[4.688rem] lg:mx-[6.25rem] xl:mx-[7.813rem]"
+        aria-label="Global"
+      >
+        <div className="flex">
+          <Link href="/" className="-m-1.5 p-1.5">
+            <Image
+              src="/logo.svg"
+              alt="Logo"
+              width={120}
+              height={120}
+              className="h-12 w-auto"
+            />
+          </Link>
+        </div>
+        <div className="items-center justify-start xs:hidden sm:flex sm:flex-1 xl:ml-4">
+          <div className="w-full max-w-lg">
+            <label htmlFor="search" className="sr-only">
+              Search
+            </label>
+            <div className="relative flex xl:w-72">
+              <input
+                type="search"
+                id="search"
+                className="rounded-4xl block w-full border border-black border-opacity-25 bg-bg-main p-3 text-xs shadow-search-bar-shadow placeholder:text-gray-400"
+                name="search"
+                placeholder="Search Events"
+              />
+              <button className="my-auto h-8 w-8 -translate-x-9 cursor-pointer rounded-[100%] bg-main-color shadow-search-bar-shadow">
+                <div className="flex justify-center">
                   <Image
-                    src={`/${isCompassHovered ? "compass-333.png" : "compass-555.png"}`}
-                    alt="compass-white"
-                    width={24}
-                    height={24}
-                    className="mr-3 lg:mr-2 lg:h-5 lg:w-5"
+                    src="/magnifier-white-sm.png"
+                    alt="Logo"
+                    width={12}
+                    height={12}
                   />
-                </picture>
-                Explore Events
+                </div>
               </button>
-            </Link>
-            <Link href={"/api/auth/signin"} className="ml-5">
-              <button
-                className="rounded-lg flex flex-row items-center border-[3px] border-main-color p-3 text-sm font-medium text-dark-charcoal shadow-jumbtron-btn-shadow hover:border-[3px] hover:border-btn-jumbotron hover:bg-btn-jumbotron hover:text-bg-main xl:text-base"
-                onMouseEnter={() => setMagHovered(true)}
-                onMouseLeave={() => setMagHovered(false)}
-              >
-                <Image
-                  src={`/${isMagHovered ? "mag-555.png" : "mag-333.png"}`}
-                  alt="compass-white"
-                  width={24}
-                  height={24}
-                  className="mr-3 lg:mr-2 lg:h-5 lg:w-5"
-                />
-                Find an event
-              </button>
-            </Link>
+            </div>
           </div>
         </div>
-        <div className="h-full w-full"></div>
-      </div>
-      <div className="flex h-fit w-fit flex-col-reverse">
-        <div className="">
-          <Image
-            src="/mba2-denger-lagu.png"
-            alt="jumbo"
-            width={2070}
-            height={1380}
-            className="md:-mt-[575px] lg:-mt-[210px] xl:-mt-[275px] 2xl:-mt-[475px] 3xl:-mt-[575px]"
-          />
-          <div className="md:- rounded-b-[80px] rounded-t-[120px] border-2 border-black bg-white md:-mt-[575px] md:ml-[165px] md:h-[575px] md:w-[450px] lg:-mt-[350px] lg:ml-[75px] lg:h-[350px] lg:w-[300px] xl:-mt-[375px] xl:ml-[110px] xl:h-[375px] xl:w-[300px] 2xl:-mt-[475px] 2xl:ml-[155px] 2xl:h-[475px] 2xl:w-[375px] 3xl:-mt-[500px] 3xl:ml-[185px] 3xl:h-[500px]"></div>
+        <div className="mr-5 xs:hidden sm:block">
+          {navigation.map((item) => (
+            <Link
+              key={item.name}
+              href={item.href}
+              className={classNames({
+                "rounded-[1.875rem] p-2 text-xs font-medium text-main-color xl:text-sm":
+                  item.href === currentPath,
+                "font-regular rounded-[1.875rem] p-2 text-xs text-text-main xl:text-sm":
+                  item.href !== currentPath,
+                "transition-colors hover:rounded-[1.875rem] hover:bg-bg-main hover:font-semibold hover:text-main-color":
+                  true,
+              })}
+            >
+              {item.name === "Jakarta Pusat" && item.icon ? (
+                <div className="inline">
+                  <item.icon className="my-auto mr-2 inline h-4 w-4" />
+                  {item.name}
+                </div>
+              ) : (
+                <span className="sm:hidden lg:inline">
+                  {item.name}
+                  <div className="ml-3 inline w-[7.5rem] border border-text-main md:hidden lg:inline" />
+                </span>
+              )}
+            </Link>
+          ))}
         </div>
-        <div className="overflow-hidden">
-          <Image
-            src="/Group.svg"
-            alt="jumbo"
-            width={1300}
-            height={1200}
-            className="xl:-mt-8 2xl:-mt-11"
-          />
-        </div>
-      </div>
-    </section>
+        <PopoverGroup>
+          <Popover className="relative">
+            <PopoverButton className="rounded-4xl flex h-12 cursor-auto items-center justify-end gap-x-5 bg-blue-600 p-3 px-4 hover:-translate-y-1 hover:shadow-nav-btn-shadow xs:w-[6.5rem] lg:w-auto">
+              <Image
+                src="/hamburger-btn.png"
+                alt="Logo"
+                width={16}
+                height={16}
+              />
+              <Image
+                src="/user.png"
+                alt="Logo"
+                width={32}
+                height={32}
+                className=""
+              />
+            </PopoverButton>
+
+            <Transition
+              enter="transition ease-out duration-200"
+              enterFrom="opacity-0 translate-y-1"
+              enterTo="opacity-100 translate-y-0"
+              leave="transition ease-in duration-150"
+              leaveFrom="opacity-100 translate-y-0"
+              leaveTo="opacity-0 translate-y-1"
+            >
+              <PopoverPanel className="rounded-3xl absolute -right-7 top-full z-10 mt-3 w-[20rem] max-w-md overflow-hidden bg-white shadow-nav-btn-shadow ring-1 ring-gray-900/5 md:right-3">
+                <div className="p-4 pb-0 text-text-main">
+                  {filteredAccount.map((item) => (
+                    <div
+                      key={item.name}
+                      className="rounded-lg group relative flex items-center gap-x-6 p-4 text-sm leading-6 hover:bg-gray-50"
+                    >
+                      <div className="flex-auto">
+                        <Link
+                          href={item.href}
+                          className="block font-medium text-text-main hover:text-main-color"
+                        >
+                          {item.name}
+                          <span className="absolute inset-0" />
+                        </Link>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="col-span-full my-1 h-px border-0 bg-zinc-950/50 dark:bg-text-main/25 forced-colors:bg-[CanvasText]" />
+                <div className="p-4 pb-0 pt-0 text-text-main md:pb-4">
+                  {eventifyFeatures.map((item) => (
+                    <div
+                      key={item.name}
+                      className="rounded-lg group relative flex items-center gap-x-6 p-4 text-sm leading-6 hover:bg-gray-50"
+                    >
+                      <div className="flex-auto">
+                        <Link
+                          href={item.href}
+                          className="block font-medium text-text-main hover:text-main-color"
+                        >
+                          {item.name}
+                          <span className="absolute inset-0" />
+                        </Link>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="p-4 pt-0 text-text-main md:hidden">
+                  {mobileNavigation.map((item) => (
+                    <div
+                      key={item.name}
+                      className="rounded-lg group relative flex items-center gap-x-6 p-4 text-sm leading-6 hover:bg-gray-50"
+                    >
+                      <div className="flex-auto">
+                        <Link
+                          href={item.href}
+                          className="block font-medium text-text-main hover:text-main-color"
+                        >
+                          {item.name}
+                          <span className="absolute inset-0" />
+                        </Link>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </PopoverPanel>
+            </Transition>
+          </Popover>
+        </PopoverGroup>
+      </nav>
+    </header>
   );
 }
