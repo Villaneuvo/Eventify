@@ -25,6 +25,10 @@ const account = [
     href: "/api/auth/signin",
   },
   {
+    name: "Good day,",
+    href: "/account",
+  },
+  {
     name: "Sign Out",
     href: "/api/auth/signout",
   },
@@ -59,11 +63,16 @@ const navigation = [
 ];
 
 export default function NavigationBar() {
-  const { status } = useSession();
+  const { status, data: session } = useSession();
   const currentPath = usePathname();
+
+  if (status === "loading") {
+    return <span>Loading...</span>;
+  }
 
   const filteredAccount = account.filter((item) => {
     if (status === "authenticated" && item.name === "Sign Out") return true;
+    if (status === "authenticated" && item.name === "Good day,") return true;
     if (status === "unauthenticated" && item.name === "Sign In") return true;
     if (status === "unauthenticated" && item.name === "Create an account")
       return true;
@@ -179,7 +188,9 @@ export default function NavigationBar() {
                           href={item.href}
                           className="block font-medium text-text-main hover:text-main-color"
                         >
-                          {item.name}
+                          {item.name === "Good day,"
+                            ? item.name + " " + session?.user?.name
+                            : item.name}
                           <span className="absolute inset-0" />
                         </Link>
                       </div>

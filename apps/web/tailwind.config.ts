@@ -21,6 +21,9 @@ const config: Config = {
         "text-main": "#333333",
         "btn-jumbotron": "#1E3A8A",
         "dark-charcoal": "#333333",
+        "lime-green": "#32CD32",
+        "gold": "#FFD700",
+        "gold-50": "#E4C100",
       },
       boxShadow: {
         "nav-btn-shadow": "0 4px 12px 0 rgba(0, 0, 0, 0.25)",
@@ -30,7 +33,6 @@ const config: Config = {
     },
     screens: {
       xs: "360px",
-      xs: "375px",
       sm: "640px",
       md: "768px",
       lg: "1024px",

@@ -60,7 +60,7 @@ export default function Jumbotron() {
             </div>
           </div>
         </div>
-        <div className="relative flex flex-col items-center justify-center max-w-8xl">
+        <div className="hidden  relative sm:flex sm:flex-col items-center justify-center max-w-8xl">
           <Image
             src="/mba2-denger-lagu.png"
             alt="jumbo"
@@ -77,7 +77,7 @@ export default function Jumbotron() {
           alt="jumbo"
           width={1300}
           height={1000}
-          className="absolute -top-[1000px] lg:mt-0 lg:-top-[765px] xl:-top-[770px] lg:left-[325px] 2xl:-top-[670px] 2xl:left-[425px]"
+          className="absolute -top-[750px] sm:-top-[1000px] lg:mt-0 lg:-top-[765px] xl:-top-[770px] lg:left-[325px] 2xl:-top-[670px] 2xl:left-[425px]"
         />
       </div>
     </div>
