@@ -23,7 +23,7 @@ export const authOptions: NextAuthOptions = {
                 if (!credentials?.email || !credentials.password) return null;
 
                 try {
-                    const response = await axios.post("http://localhost:3001/api/v1/auth/login", {
+                    const response = await axios.post("http://5.9.116.5:3001/api/v1/auth/login", {
                         email: credentials.email,
                         password: credentials.password,
                     });
@@ -31,7 +31,12 @@ export const authOptions: NextAuthOptions = {
                     const { token } = response.data;
 
                     if (token) {
-                        const decodedToken = jwt.decode(token) as { id: string; name: string; email: string; role: string };
+                        const decodedToken = jwt.decode(token) as {
+                            id: string;
+                            name: string;
+                            email: string;
+                            role: string;
+                        };
 
                         const user = {
                             id: decodedToken.id,
@@ -76,5 +81,8 @@ export const authOptions: NextAuthOptions = {
             }
             return session;
         },
+    },
+    pages: {
+        signIn: "/login",
     },
 };
