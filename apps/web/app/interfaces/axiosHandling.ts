@@ -1,4 +1,4 @@
-export interface errorAxios {
+export interface errorAxios extends Error {
     response: {
         data: {
             message: string;

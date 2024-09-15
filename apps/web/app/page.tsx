@@ -4,7 +4,7 @@ import Footer from "./components/section/footer/Footer";
 import Jumbotron from "./components/section/jumbotron/jumbotron";
 import NavigationBar from "./components/section/navigation/NavBar";
 import PopularEvent from "./components/section/popular-event-overview/popular-event";
-import ProductList from "./components/section/product-lists/product-lists";
+import ProductCategoryList from "./components/section/product-category-lists/product-category-lists";
 
 export default function Page() {
     return (
@@ -12,7 +12,7 @@ export default function Page() {
             <NavigationBar />
             <Jumbotron />
             <PopularEvent />
-            <ProductList />
+            <ProductCategoryList />
             <Footer />
         </>
     );
