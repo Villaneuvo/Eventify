@@ -24,11 +24,14 @@ const config: Config = {
         "lime-green": "#32CD32",
         "gold": "#FFD700",
         "gold-50": "#E4C100",
+        "blue-cold": "#1E3A8A",
+        "schivia-blue": "#152C5B"
       },
       boxShadow: {
         "nav-btn-shadow": "0 4px 12px 0 rgba(0, 0, 0, 0.25)",
         "search-bar-shadow": "0 4px 4px 0 rgba(0, 0, 0, 0.15)",
         "jumbtron-btn-shadow": "4px 4px 12px 0 rgba(65, 105, 225, 0.25)",
+        "footer-shadow": "0 -4px 16px 0 rgba(0, 0, 0, 0.15)",
       },
     },
     screens: {

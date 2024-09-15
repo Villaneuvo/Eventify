@@ -66,9 +66,9 @@ export default function Jumbotron() {
             alt="jumbo"
             width={2070}
             height={1380}
-            className="z-20 2xl:pt-10"
+            className="z-[2] 2xl:pt-10"
           />
-          <div className="absolute w-[8rem] h-[10rem] sm:w-[16rem] sm:h-[20rem] md:w-[20rem] md:h-[24rem] lg:w-[16rem] lg:h-[20rem] xl:top-32 2xl:top-8 bg-white xl:w-[22.5rem] xl:h-[26rem] 2xl:w-[26.5rem] 2xl:h-[32rem] rounded-b-[80px] rounded-t-[120px] border-2 border-black z-10" />
+          <div className="absolute w-[8rem] h-[10rem] sm:w-[16rem] sm:h-[20rem] md:w-[20rem] md:h-[24rem] lg:w-[16rem] lg:h-[20rem] xl:top-32 2xl:top-8 bg-white xl:w-[22.5rem] xl:h-[26rem] 2xl:w-[26.5rem] 2xl:h-[32rem] rounded-b-[80px] rounded-t-[120px] border-2 border-black z-[1]" />
         </div>
       </div>
       <div className="relative w-[1200px] lg:h-[400px] md:h-24 ">

@@ -5,6 +5,7 @@ import { CheckIcon, WalletIcon } from "@heroicons/react/24/solid";
 import Image from "next/image";
 import { useState } from "react";
 import { IoRemoveOutline } from "react-icons/io5";
+import Modal from "../../modal-dialog";
 
 const steps = [
   { id: "1", name: "Choose Methods", href: "#", status: "complete" },
@@ -38,6 +39,7 @@ export default function PaymentDetail() {
     number | null
   >(null);
   const [enabled, setEnabled] = useState(true);
+  const [open, setOpen] = useState(false);
 
   const handleRadioChange = (id: number) => {
     setSelectedPaymentMethod(id);
@@ -304,8 +306,12 @@ export default function PaymentDetail() {
 
               <div className="mt-6">
                 <button
-                  type="submit"
+                  type="button"
                   className="w-full rounded-md border border-transparent bg-main-color px-4 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-50"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setOpen(true);
+                  }}
                 >
                   Checkout
                 </button>
@@ -313,6 +319,7 @@ export default function PaymentDetail() {
             </section>
           </form>
         </div>
+        {open && <Modal open={open} setOpen={setOpen} />}
       </div>
       <footer
         aria-labelledby="footer-heading"
