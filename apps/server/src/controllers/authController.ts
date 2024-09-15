@@ -31,7 +31,7 @@ export const register = async (req: Request, res: Response) => {
 
             if (referredBy) {
                 pointsEarned = 10000;
-                pointsExpiry = new Date(Date.now() + 3 * 30 * 24 * 60 * 60 * 1000); // 3 months from now
+                pointsExpiry = new Date(Date.now() + 3 * 30 * 24 * 60 * 60 * 1000); // 3 months validity
 
                 await prisma.user.update({
                     where: { id: referredBy.id },
@@ -57,6 +57,24 @@ export const register = async (req: Request, res: Response) => {
                 pointsExpiry,
             },
         });
+
+        if (referralCode) {
+            const promotionCode = generateRandomString(12);
+            const validUntil = new Date(Date.now() + 3 * 30 * 24 * 60 * 60 * 1000); // 3 months validity
+
+            await prisma.promotion.create({
+                data: {
+                    code: promotionCode,
+                    discount: 10.0,
+                    validFrom: new Date(),
+                    validUntil,
+                    isEventSpecific: false,
+                    user: {
+                        connect: { id: user.id },
+                    },
+                },
+            });
+        }
 
         res.status(201).json({
             message: "Registration successful",

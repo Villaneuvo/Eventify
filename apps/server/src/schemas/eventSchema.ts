@@ -13,11 +13,23 @@ export const createEventSchema = z.object({
     name: z.string(),
     description: z.string(),
     genre: z.enum(["ELECTRONIC", "INDIE", "JAZZ", "ROCK", "POP", "HIPHOP"]),
-    date: z.string(),
+    date: z.date(),
     location: z.string(),
-    price: z.number().min(0),
+    price: z.number(),
     organizerId: z.string(),
-    promotions: z.array(promotionSchema).optional(), // Add promotions as optional
+    promotions: z
+        .array(
+            z.object({
+                code: z.string().optional(),
+                discount: z.number(),
+                validFrom: z.date(),
+                validUntil: z.date(),
+            })
+        )
+        .optional(),
+    createReferralDiscount: z.boolean().optional(),
+    referralCodes: z.array(z.string()).optional(),
+    createDateBasedDiscount: z.boolean().optional(),
 });
 
 export const updateEventSchema = z.object({

@@ -14,26 +14,30 @@ datasource db {
 }
 
 model User {
-  id             String    @id @default(uuid())
-  name           String
-  email          String    @unique
-  password       String
-  role           Role      @default(ATTENDEE)
-  referralCode   String?   @unique
-  pointsEarned   Int       @default(0)
-  pointsRedeemed Int       @default(0)
-  pointsExpiry   DateTime?
+  id               String    @id @default(uuid())
+  name             String
+  email            String    @unique
+  password         String
+  role             Role      @default(ATTENDEE)
+  referralCode     String?   @unique
+  usedReferralCode String?
+  pointsEarned     Int       @default(0)
+  pointsRedeemed   Int       @default(0)
+  pointsExpiry     DateTime?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   // Relations
   events      Event[]       @relation("OrganizerEvents")
+  promotions  Promotion[]
+  referrals   Referral[]    @relation("ReferralOwner") // Referral codes owned by this user
+  referredBy  Referral?     @relation("ReferredUser", fields: [referralId], references: [id])
   tickets     Ticket[]
-  referrals   Referral[]
-  Review      Review[]
-  Transaction Transaction[]
-  AuthUser    AuthUser[]
+  review      Review[]
+  transaction Transaction[]
+  authUser    AuthUser[]
+  referralId  String?
 }
 
 enum Role {
@@ -61,6 +65,9 @@ model Event {
   price       Float
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  mainImage        String @default("event-default.jpg")
+  additionalImages Json   @default("[]")
 
   // Relations
   organizerId String
@@ -92,7 +99,7 @@ model Ticket {
   event       Event         @relation(fields: [eventId], references: [id])
   userId      String
   user        User          @relation(fields: [userId], references: [id])
-  Transaction Transaction[]
+  transaction Transaction[]
 }
 
 enum TicketType {
@@ -116,24 +123,28 @@ model Review {
 
 model Referral {
   id   String @id @default(uuid())
-  code String @unique
+  code String @unique // The referral code
 
-  // Relations
   userId String
-  user   User   @relation(fields: [userId], references: [id])
+  user   User   @relation("ReferralOwner", fields: [userId], references: [id])
+
+  referredUser User[] @relation("ReferredUser")
 }
 
 model Promotion {
-  id         String   @id @default(uuid())
-  code       String   @unique
-  discount   Float
-  validFrom  DateTime
-  validUntil DateTime
-  usageCount Int      @default(0)
+  id              String   @id @default(uuid())
+  code            String   @unique
+  discount        Float
+  validFrom       DateTime
+  validUntil      DateTime
+  usageCount      Int      @default(0)
+  isEventSpecific Boolean  @default(false)
 
   // Relations
-  eventId     String
-  event       Event         @relation(fields: [eventId], references: [id])
+  eventId     String?
+  event       Event?        @relation(fields: [eventId], references: [id])
+  userId      String?
+  user        User?         @relation(fields: [userId], references: [id])
   Transaction Transaction[]
 }
 
@@ -148,7 +159,7 @@ model Merchandise {
   // Relations
   eventId     String
   event       Event         @relation(fields: [eventId], references: [id])
-  Transaction Transaction[]
+  transaction Transaction[]
 }
 
 model Transaction {

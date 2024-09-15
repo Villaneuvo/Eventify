@@ -55,7 +55,6 @@ export const getAllEventsOrganizer = async (req: AuthenticatedRequest, res: Resp
     const { search, category, location, page = 1, pageSize = 10 } = req.query;
 
     const whereClause: any = {};
-
     const organizerId = req.user?.id;
 
     if (organizerId) {
@@ -139,13 +138,28 @@ export const createEvent = async (req: Request, res: Response) => {
                     location: parsedData.location,
                     price: parsedData.price,
                     organizerId: parsedData.organizerId,
-                    promotions: parsedData.promotions
-                        ? {
-                              create: parsedData.promotions,
-                          }
-                        : undefined,
+                    ...(parsedData.promotions && {
+                        promotions: {
+                            create: parsedData.promotions.map((promo) => ({
+                                discount: promo.discount,
+                                validFrom: promo.validFrom,
+                                validUntil: promo.validUntil,
+                                code: promo.code ?? generateRandomString(12), // Ensure the code is always provided if needed
+                            })),
+                        },
+                    }),
                 },
             });
+
+            // Automatically create promotions for attendees with referral codes
+            if (parsedData.createReferralDiscount) {
+                await createPromotionsForReferrals(parsedData.organizerId, newEvent.id);
+            }
+
+            // Add date-based promotion logic
+            if (parsedData.createDateBasedDiscount) {
+                await createDateBasedPromotions(newEvent.date, parsedData.organizerId, newEvent.id);
+            }
 
             res.status(201).json(newEvent);
         });
@@ -280,4 +294,66 @@ export const buyTicket = async (req: Request, res: Response) => {
     } catch (error) {
         res.status(500).json({ message: "Failed to purchase ticket", error });
     }
+};
+
+const createPromotionsForReferrals = async (organizerId: string, eventId: string) => {
+    const referredUsers = await prisma.user.findMany({
+        where: { usedReferralCode: { not: null } },
+    });
+
+    for (const referredUser of referredUsers) {
+        const promotionCode = generateRandomString(12);
+
+        // Create promotion for the referred user
+        await prisma.promotion.create({
+            data: {
+                code: promotionCode,
+                discount: 15.0, // Adjust the discount percentage as needed
+                validFrom: new Date(),
+                validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // Valid for 1 month
+                isEventSpecific: true,
+                event: { connect: { id: eventId } },
+                user: { connect: { id: referredUser.id } },
+            },
+        });
+    }
+};
+
+const createDateBasedPromotions = async (eventDate: Date, organizerId: string, eventId: string) => {
+    const promotionCode = generateRandomString(12);
+
+    // Define date-based discount logic
+    const currentDate = new Date();
+    const daysUntilEvent = (eventDate.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24);
+
+    let discount = 0;
+    if (daysUntilEvent > 30) {
+        discount = 10; // 10% discount for bookings more than 30 days before the event
+    } else if (daysUntilEvent > 7) {
+        discount = 5; // 5% discount for bookings between 7 and 30 days before the event
+    }
+
+    if (discount > 0) {
+        await prisma.promotion.create({
+            data: {
+                code: promotionCode,
+                discount,
+                validFrom: new Date(),
+                validUntil: eventDate,
+                isEventSpecific: true,
+                event: { connect: { id: eventId } },
+                user: { connect: { id: organizerId } },
+            },
+        });
+    }
+};
+
+const generateRandomString = (length: number = 12): string => {
+    const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    let result = "";
+    for (let i = 0; i < length; i++) {
+        const randomIndex = Math.floor(Math.random() * characters.length);
+        result += characters[randomIndex];
+    }
+    return result;
 };
