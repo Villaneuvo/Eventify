@@ -5,7 +5,7 @@ import { authMiddleware, roleMiddleware } from "../middlewares/authMiddleware";
 
 const router = Router();
 
-router.get("/", authMiddleware, getAllEvents);
+router.get("/", getAllEvents);
 router.get("/organizer", authMiddleware, roleMiddleware([Role.ORGANIZER]), getAllEventsOrganizer);
 router.get("/:id", authMiddleware, getEventById);
 router.post("/", authMiddleware, roleMiddleware([Role.ORGANIZER]), createEvent);
