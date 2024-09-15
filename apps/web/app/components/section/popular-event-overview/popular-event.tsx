@@ -58,7 +58,7 @@ const product = {
 export default function PopularEvent() {
   return (
     <div className="bg-white h-screen">
-      <div className="pt-6 lg:mx-[7.813rem] ">
+      <div className="py-16 sm:py-24 lg:mx-[7.813rem] ">
         <h2 className="text-xl font-medium ">
           Popular events happening in Jakarta Pusat
         </h2>
