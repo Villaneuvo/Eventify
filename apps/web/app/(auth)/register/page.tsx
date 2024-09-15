@@ -1,6 +1,6 @@
 "use client";
 
-import { errorAxios } from "@/app/utils/axiosHandling";
+import { errorAxios } from "@/app/interfaces/axiosHandling";
 import { registerSchema } from "@/app/utils/zodSchema";
 import axios from "axios";
 import { useSession } from "next-auth/react";
