@@ -2,7 +2,6 @@
 
 import { Popover, PopoverButton, PopoverGroup, PopoverPanel, Transition } from "@headlessui/react";
 import { MapPinIcon } from "@heroicons/react/24/outline";
-
 import classNames from "classnames";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
@@ -54,8 +53,19 @@ const mobileNavigation = [
 const navigation = [
     { name: "Find events", href: "/events", icon: null },
     { name: "Eventify your events", href: "/events/eventify-your-event", icon: null },
-    { name: "Jakarta Pusat", href: "/transaction", icon: MapPinIcon },
+    { name: "Jakarta Pusat", href: "#", icon: MapPinIcon },
 ];
+
+interface ItemEvent {
+    id: string;
+    price: number;
+    mainImage: string;
+    name: string;
+    url?: string;
+    date: string;
+    time: string;
+    location: string;
+}
 
 export default function NavigationBar() {
     const { status, data: session } = useSession();
@@ -63,14 +73,30 @@ export default function NavigationBar() {
     const [input, setInput] = useState("");
     const [result, setResult] = useState([]);
     const [debouncedInput, setDebouncedInput] = useState(input);
+    const [selectedArea, setSelectedArea] = useState("Jakarta Pusat");
+
+    const handleSelection = (value: string) => {
+        setSelectedArea(value);
+    };
 
     const fetchData = async (val: string) => {
         try {
-            const res = await fetch(`http://localhost:3001/api/v1/events`);
+            let params: { pageSize: number } = {
+                pageSize: 100,
+            };
+
+            const res = await fetch(`http://5.9.116.5:3001/api/v1/events?pageSize=${params.pageSize}`);
             const data = await res.json();
             const filteredData = data.data.filter((item: any) => {
-                return val === "" || item.name.toLowerCase().includes(val.toLowerCase());
+                return (
+                    item.name.toLowerCase().includes(val.toLowerCase()) ||
+                    item.location.toLowerCase().includes(val.toLowerCase())
+                );
             });
+            if (filteredData.length === 0) {
+                setResult([]);
+                return;
+            }
             setResult(filteredData);
         } catch (error) {
             console.error(error);
@@ -142,17 +168,40 @@ export default function NavigationBar() {
                                 </div>
                             </button>
                         </div>
-                        {result.length > 0 && input !== "" ? (
+                        {input !== "" ? (
                             <div className="absolute z-20 w-96 mt-5 max-h-48 overflow-y-scroll overflow-x-hidden bg-white rounded-lg shadow-2xl border border-text-main/25">
                                 <ul className="py-1">
-                                    {result.map((item: any) => (
-                                        <li
-                                            key={item.id}
-                                            className="px-4 py-2 text-sm leading-5 text-text-main hover:bg-gray-50"
-                                        >
-                                            <Link href={`/account/${item.id}`}>{item.name}</Link>
-                                        </li>
-                                    ))}
+                                    {result.length === 0 ? (
+                                        <li className="p-4 text-sm text-text-main">No results found</li>
+                                    ) : (
+                                        result.map((item: ItemEvent) => (
+                                            <li
+                                                key={item.id}
+                                                className="px-4 py-2 text-sm leading-5 text-text-main hover:bg-gray-50 "
+                                            >
+                                                <Link className="flex items-center" href={`/events/${item.id}`}>
+                                                    <div className="w-32 shrink-0">
+                                                        <Image
+                                                            height={500}
+                                                            width={500}
+                                                            className="aspect-[3/2] rounded-lg shadow"
+                                                            src={item.mainImage}
+                                                            alt={item.name}
+                                                        />
+                                                    </div>
+                                                    <div className="text-sm ml-3">
+                                                        <span>{item.name}</span>
+                                                        <span className="block text-xs">
+                                                            {new Date(item.date).getDate()}-
+                                                            {new Date(item.date).getMonth()}-
+                                                            {new Date(item.date).getFullYear()}, {item.location}
+                                                        </span>
+                                                        <span className="block text-xs">Rp. {item.price}</span>
+                                                    </div>
+                                                </Link>
+                                            </li>
+                                        ))
+                                    )}
                                 </ul>
                             </div>
                         ) : null}
@@ -174,8 +223,17 @@ export default function NavigationBar() {
                         >
                             {item.name === "Jakarta Pusat" && item.icon ? (
                                 <div className="inline">
-                                    <item.icon className="my-auto mr-2 inline h-4 w-4" />
-                                    {item.name}
+                                    <item.icon className="my-auto inline h-4 w-4" />
+                                    <select
+                                        className="border-0 rounded-[1.875rem] focus:outline-none"
+                                        onChange={(e) => handleSelection(e.target.value)}
+                                    >
+                                        <option value="Jakarta Pusat">Jakarta Pusat</option>
+                                        <option value="Jakarta Barat">Jakarta Barat</option>
+                                        <option value="Jakarta Timur">Jakarta Timur</option>
+                                        <option value="Jakarta Utara">Jakarta Utara</option>
+                                        <option value="Jakarta Selatan">Jakarta Selatan</option>
+                                    </select>
                                 </div>
                             ) : (
                                 <span className="sm:hidden lg:inline">
