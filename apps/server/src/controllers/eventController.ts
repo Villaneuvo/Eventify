@@ -1,8 +1,8 @@
-import { Genre, PrismaClient } from "@prisma/client";
+import { Genre, PrismaClient, TicketType } from "@prisma/client";
 import { Request, Response } from "express";
 import { ZodError } from "zod";
 import { AuthenticatedRequest } from "../middlewares/authMiddleware";
-import { createEventSchema, updateEventSchema } from "../schemas/eventSchema";
+import { buyTicketSchema, createEventSchema, updateEventSchema } from "../schemas/eventSchema";
 
 const prisma = new PrismaClient();
 
@@ -126,6 +126,7 @@ export const getEventById = async (req: Request, res: Response) => {
 
 export const createEvent = async (req: Request, res: Response) => {
     try {
+        console.log(req.body)
         const parsedData = createEventSchema.parse(req.body);
 
         await prisma.$transaction(async (prisma) => {
@@ -137,6 +138,8 @@ export const createEvent = async (req: Request, res: Response) => {
                     date: parsedData.date,
                     location: parsedData.location,
                     price: parsedData.price,
+                    availableTicket: parsedData.availableTicket,
+                    mainImage: parsedData.mainImage,
                     organizerId: parsedData.organizerId,
                     ...(parsedData.promotions && {
                         promotions: {
@@ -151,12 +154,10 @@ export const createEvent = async (req: Request, res: Response) => {
                 },
             });
 
-            // Automatically create promotions for attendees with referral codes
             if (parsedData.createReferralDiscount) {
                 await createPromotionsForReferrals(parsedData.organizerId, newEvent.id);
             }
 
-            // Add date-based promotion logic
             if (parsedData.createDateBasedDiscount) {
                 await createDateBasedPromotions(newEvent.date, parsedData.organizerId, newEvent.id);
             }
@@ -197,14 +198,15 @@ export const updateEvent = async (req: AuthenticatedRequest, res: Response) => {
                     date: parsedData.date,
                     location: parsedData.location,
                     price: parsedData.price,
+                    availableTicket: parsedData.availableTicket,
                     promotions: parsedData.promotions
                         ? {
-                              upsert: parsedData.promotions.map((promo) => ({
-                                  where: { id: promo.id || undefined },
-                                  update: promo,
-                                  create: promo,
-                              })),
-                          }
+                            upsert: parsedData.promotions.map((promo) => ({
+                                where: { id: promo.id || undefined },
+                                update: promo,
+                                create: promo,
+                            })),
+                        }
                         : undefined,
                 },
             });
@@ -239,16 +241,20 @@ export const deleteEvent = async (req: AuthenticatedRequest, res: Response) => {
 };
 
 export const buyTicket = async (req: Request, res: Response) => {
-    const { eventId, userId, ticketType, usePoints = false } = req.body;
-
     try {
-        const event = await prisma.event.findUnique({ where: { id: eventId } });
+        const parsedData = buyTicketSchema.parse(req.body);
+        const { eventId, userId, ticketType, quantity = 1, usePoints = false } = parsedData;
 
+        const event = await prisma.event.findUnique({ where: { id: eventId } });
         if (!event) {
             return res.status(404).json({ message: "Event not found" });
         }
 
-        let finalPrice = event.price;
+        if (event.availableTicket < quantity) {
+            return res.status(400).json({ message: `Only ${event.availableTicket} tickets are available` });
+        }
+
+        let finalPrice = event.price * quantity;
         let pointsUsed = 0;
 
         if (usePoints) {
@@ -261,14 +267,25 @@ export const buyTicket = async (req: Request, res: Response) => {
         }
 
         await prisma.$transaction(async (prisma) => {
-            const ticket = await prisma.ticket.create({
+            await prisma.event.update({
+                where: { id: eventId },
                 data: {
-                    type: ticketType,
-                    price: finalPrice,
-                    eventId: event.id,
-                    userId: userId,
+                    availableTicket: {
+                        decrement: quantity,
+                    },
                 },
             });
+
+            for (let i = 0; i < quantity; i++) {
+                await prisma.ticket.create({
+                    data: {
+                        type: ticketType as TicketType,
+                        price: event.price,
+                        eventId: event.id,
+                        userId: userId,
+                    },
+                });
+            }
 
             if (pointsUsed > 0) {
                 await prisma.user.update({
@@ -285,14 +302,16 @@ export const buyTicket = async (req: Request, res: Response) => {
                 data: {
                     amount: finalPrice,
                     userId: userId,
-                    ticketId: ticket.id,
                 },
             });
 
-            res.status(201).json({ message: "Ticket purchased successfully", ticket });
+            res.status(201).json({ message: "Tickets purchased successfully", tickets: quantity });
         });
     } catch (error) {
-        res.status(500).json({ message: "Failed to purchase ticket", error });
+        if (error instanceof ZodError) {
+            return res.status(400).json({ errors: error.errors });
+        }
+        res.status(500).json({ message: "Failed to purchase tickets", error });
     }
 };
 
@@ -304,11 +323,10 @@ const createPromotionsForReferrals = async (organizerId: string, eventId: string
     for (const referredUser of referredUsers) {
         const promotionCode = generateRandomString(12);
 
-        // Create promotion for the referred user
         await prisma.promotion.create({
             data: {
                 code: promotionCode,
-                discount: 15.0, // Adjust the discount percentage as needed
+                discount: 15.0,
                 validFrom: new Date(),
                 validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // Valid for 1 month
                 isEventSpecific: true,
@@ -322,7 +340,6 @@ const createPromotionsForReferrals = async (organizerId: string, eventId: string
 const createDateBasedPromotions = async (eventDate: Date, organizerId: string, eventId: string) => {
     const promotionCode = generateRandomString(12);
 
-    // Define date-based discount logic
     const currentDate = new Date();
     const daysUntilEvent = (eventDate.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24);
 

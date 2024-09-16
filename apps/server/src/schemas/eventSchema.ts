@@ -9,6 +9,14 @@ const promotionSchema = z.object({
     usageCount: z.number().default(0),
 });
 
+export const buyTicketSchema = z.object({
+    eventId: z.string(),
+    userId: z.string(),
+    ticketType: z.enum(["GENERAL_ADMISSION", "VIP", "EARLY_BIRD"]),
+    quantity: z.number().min(1, "You must purchase at least 1 ticket"), // New quantity field
+    usePoints: z.boolean().optional(), // Optional field to redeem points
+});
+
 export const createEventSchema = z.object({
     name: z.string(),
     description: z.string(),
@@ -16,6 +24,8 @@ export const createEventSchema = z.object({
     date: z.date(),
     location: z.string(),
     price: z.number(),
+    availableTicket: z.number().min(1, "Available tickets must be at least 1"),
+    mainImage: z.string(),
     organizerId: z.string(),
     promotions: z
         .array(
@@ -39,6 +49,7 @@ export const updateEventSchema = z.object({
     date: z.string().optional(),
     location: z.string().optional(),
     price: z.number().min(0).optional(),
+    availableTicket: z.number().min(0).optional(), // Add availableTicket here as optional
     organizerId: z.string().optional(),
     promotions: z.array(promotionSchema).optional(), // Add promotions as optional
 });
