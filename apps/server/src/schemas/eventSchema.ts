@@ -21,7 +21,12 @@ export const createEventSchema = z.object({
     name: z.string(),
     description: z.string(),
     genre: z.enum(["ELECTRONIC", "INDIE", "JAZZ", "ROCK", "POP", "HIPHOP"]),
-    date: z.date(),
+    date: z
+        .string()
+        .transform((dateStr) => new Date(dateStr))
+        .refine((date) => !isNaN(date.getTime()), {
+            message: "Invalid date format",
+        }),
     location: z.string(),
     price: z.number(),
     availableTicket: z.number().min(1, "Available tickets must be at least 1"),
