@@ -268,7 +268,21 @@ export default function NavigationBar() {
                                         >
                                             <div className="flex-auto">
                                                 <Link
-                                                    href={item.href}
+                                                    // href={
+                                                    //     session?.user?.role === "ORGANIZER"
+                                                    //         ? `${item.href}/event-oraganizer`
+                                                    //         : `${item.href}/attendee`
+                                                    // }
+                                                    href={
+                                                        (item.name === "Good day," &&
+                                                            session?.user?.role === "ORGANIZER") ||
+                                                        session?.user?.role === "ADMIN"
+                                                            ? `${item.href}/event-oraganizer`
+                                                            : session?.user?.role === "ATTENDEE" &&
+                                                                item.name === "Good day,"
+                                                              ? `${item.href}/attendee`
+                                                              : item.href
+                                                    }
                                                     className="block font-medium text-text-main hover:text-main-color"
                                                 >
                                                     {item.name === "Good day,"
