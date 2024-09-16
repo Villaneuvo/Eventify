@@ -30,7 +30,7 @@ export default function ProductList({ limitDefault, category = "" }: { limitDefa
                         category: category,
                     };
                 }
-                const response = await axios.get(`http://localhost:3001/api/v1/events`, { params });
+                const response = await axios.get(`http://5.9.116.5:3001/api/v1/events`, { params });
                 setTotalPages(response.data.pagination.totalPages);
                 setProducts(response.data.data);
                 setLoading(false);
