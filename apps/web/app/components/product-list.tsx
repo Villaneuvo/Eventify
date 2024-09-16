@@ -30,7 +30,7 @@ export default function ProductList({ limitDefault, category = "" }: { limitDefa
                         category: category,
                     };
                 }
-                const response = await axios.get(`http://5.9.116.5:3001/api/v1/events`, { params });
+                const response = await axios.get(`http://localhost:3001/api/v1/events`, { params });
                 setTotalPages(response.data.pagination.totalPages);
                 setProducts(response.data.data);
                 setLoading(false);
@@ -140,8 +140,8 @@ export default function ProductList({ limitDefault, category = "" }: { limitDefa
                         <div key={product.id} className="group relative my-8">
                             <div className="h-56 w-full overflow-hidden rounded-md bg-gray-200 group-hover:opacity-75 lg:h-72 xl:h-80">
                                 <Image
-                                    height={100}
-                                    width={100}
+                                    height={500}
+                                    width={500}
                                     alt={product.name}
                                     src={product.mainImage}
                                     className="h-full w-full object-cover object-center"
