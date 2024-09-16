@@ -41,7 +41,7 @@ export default function RegisterPage() {
 
         try {
             const bodyReq = referral ? { name, email, password, referralCode: referral } : { name, email, password };
-            const response = await axios.post("http://5.9.116.5:3001/api/v1/auth/register", bodyReq);
+            const response = await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL_API}/api/v1/auth/register`, bodyReq);
             if (response.data.message === "Email is already registered") {
                 setError("Email is already registered");
             }

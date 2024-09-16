@@ -14,3 +14,13 @@ export function formatDate(date1: Date) {
 
     return new Intl.DateTimeFormat("en-US", options).format(date);
 }
+
+export function formatCurrency(value: number) {
+    return new Intl.NumberFormat("id-ID", currencyFormatOptions).format(value);
+}
+
+export const currencyFormatOptions: Intl.NumberFormatOptions = {
+    style: "currency",
+    currency: "IDR",
+    minimumFractionDigits: 0,
+};

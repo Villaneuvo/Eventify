@@ -35,7 +35,7 @@ export default function DetailsEventPage({ params }: { params: { id: string } })
         const value = e.target.value;
         // Allow empty value or a numeric value, reject anything else
         if (/^\d*$/.test(value)) {
-            if (value === "" || parseInt(value) <= event.availableTickets) {
+            if (value === "" || parseInt(value) <= event.availableTicket) {
                 setTicketCount(value);
             }
         }
@@ -50,7 +50,7 @@ export default function DetailsEventPage({ params }: { params: { id: string } })
         async function fetchEvent() {
             try {
                 setLoading(true);
-                const response = await axios.get(`http://5.9.116.5:3001/api/v1/events/${eventId}`, config);
+                const response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL_API}/api/v1/events/${eventId}`, config);
                 setEvent(response.data);
                 setLoading(false);
             } catch (error) {
@@ -96,7 +96,7 @@ export default function DetailsEventPage({ params }: { params: { id: string } })
                             {event.price > 0 && (
                                 <p className="text-lg font-bold mb-2">Price: Rp {event.price.toLocaleString()}</p>
                             )}
-                            <p className="text-sm text-gray-600 mb-2">Available Tickets: {event.availableTickets}</p>
+                            <p className="text-sm text-gray-600 mb-2">Available Tickets: {event.availableTicket}</p>
                             <div className="flex items-center mb-4">
                                 <label className="mr-4 font-semibold">Tickets:</label>
                                 <input

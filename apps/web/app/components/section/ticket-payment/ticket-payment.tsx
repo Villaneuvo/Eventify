@@ -1,9 +1,14 @@
 "use client";
 
+import { Event, Promotion, User } from "@/app/interfaces/db";
+import { formatCurrency } from "@/app/utils/helpers";
 import { Switch } from "@headlessui/react";
 import { CheckIcon, WalletIcon } from "@heroicons/react/24/solid";
+import axios from "axios";
+import { useSession } from "next-auth/react";
 import Image from "next/image";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import { IoRemoveOutline } from "react-icons/io5";
 import Modal from "../../modal-dialog";
 
@@ -11,32 +16,6 @@ const steps = [
     { id: "1", name: "Choose Methods", href: "#", status: "complete" },
     { id: "2", name: "Payment", href: "#", status: "current" },
     { id: "3", name: "Finish", href: "#", status: "upcoming" },
-];
-
-const dummyTicket = {
-    id: 1,
-    title: "Summer 2024 Final Boatride",
-    price: 475000,
-    discount: 150000,
-    quantity: 1,
-};
-
-const dummyPromo = [
-    {
-        id: 1,
-        code: "PROMO50",
-        discount: 150000,
-    },
-    {
-        id: 2,
-        code: "PROMO30",
-        discount: 100000,
-    },
-    {
-        id: 3,
-        code: "PROMO20",
-        discount: 50000,
-    },
 ];
 
 const dummyPoint = 25000;
@@ -63,38 +42,142 @@ const paymentMethods = [
 ];
 
 export default function PaymentDetail() {
+    const [loading, setLoading] = useState(true);
+    const [event, setEvent] = useState<Event>({} as Event);
+    const [user, setUser] = useState<User>({} as User);
     const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<number | null>(null);
     const [isPointEnabled, setPointEnabled] = useState(false);
     const [input, setInput] = useState("");
     const [open, setOpen] = useState(false);
-    const [promo, setPromo] = useState<{ code: string; discount: number | undefined }[]>([]);
+    const [promo, setPromo] = useState<Promotion | null>(null);
+    const [totalDiscountPromo, setTotalDiscountPromo] = useState(0);
+    const searchParams = useSearchParams();
+    const eventId = searchParams.get("eventId");
+    const qtyTicket = searchParams.get("tickets");
+    const router = useRouter();
+    const { data: session } = useSession();
+    const token = session?.user.token;
+    const userId = session?.user.id;
+    const config = {
+        headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+        },
+    };
+    let totalPrice = event.price * parseInt(qtyTicket!);
 
-    console.log("ini PROMO", promo);
+    if (!session || !eventId || !qtyTicket) {
+        router.push("/");
+    }
+    useEffect(() => {
+        async function fetchEvent() {
+            try {
+                setLoading(true);
+                const response = await axios.get(
+                    `${process.env.NEXT_PUBLIC_BASE_URL_API}/api/v1/events/${eventId}`,
+                    config,
+                );
+                setEvent(response.data);
+                setLoading(false);
+            } catch (error) {
+                setLoading(false);
+            }
+        }
+        fetchEvent();
+    }, [eventId]);
+    useEffect(() => {
+        async function fetchUser() {
+            try {
+                setLoading(true);
+                const response = await axios.get(
+                    `${process.env.NEXT_PUBLIC_BASE_URL_API}/api/v1/users/${userId}`,
+                    config,
+                );
+                setUser(response.data);
+                setLoading(false);
+            } catch (error) {
+                setLoading(false);
+            }
+        }
+        fetchUser();
+    }, [userId]);
+
+    useEffect(() => {
+        if (promo) {
+            const totalDiscount = promo.discount;
+            setTotalDiscountPromo((totalDiscount || 0) * totalPrice);
+        }
+    }, [promo]);
 
     const handleApplyCoupon = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
         const normalizedInput = input.trim().toUpperCase();
-
-        const promoExists = dummyPromo.some((promo) => promo.code === normalizedInput);
-        const promoPrice = dummyPromo.find((promo) => promo.code === normalizedInput)?.discount;
-        const promoData = {
-            code: normalizedInput,
-            discount: promoPrice,
-        };
-        if (promoExists) {
-            setPromo([...promo, promoData]);
-            setInput("");
-        } else {
-            alert("Invalid promo code");
+        async function fetchPromo() {
+            try {
+                const response = await axios.get(
+                    `${process.env.NEXT_PUBLIC_BASE_URL_API}/api/v1/promotion/${normalizedInput}`,
+                    config,
+                );
+                if (response.data.eventId != eventId) {
+                    alert("Promo code not valid for this event");
+                    setInput("");
+                    return;
+                }
+                if (response.data.code === promo?.code) {
+                    alert("Promo code already used");
+                    setInput("");
+                    return;
+                }
+                setPromo(response.data);
+                setInput("");
+            } catch (error) {
+                alert("Invalid promo code");
+                setInput("");
+            }
         }
+        fetchPromo();
     };
 
-    let totalPrice = dummyTicket.price;
-
-    console.log("HEHE", selectedPaymentMethod);
     const handleRadioChange = (id: number) => {
         setSelectedPaymentMethod(id);
     };
+
+    const handleCheckout = async (e: React.MouseEvent<HTMLButtonElement>) => {
+        e.preventDefault();
+        if (!selectedPaymentMethod) {
+            alert("Please select payment method");
+            return;
+        }
+        const data = promo
+            ? {
+                  eventId,
+                  userId,
+                  quantity: +qtyTicket!,
+                  usePoints: isPointEnabled,
+                  promoCode: promo?.code,
+              }
+            : {
+                  eventId,
+                  userId,
+                  quantity: +qtyTicket!,
+                  usePoints: isPointEnabled,
+              };
+        try {
+            const response = await axios.post(
+                `${process.env.NEXT_PUBLIC_BASE_URL_API}/api/v1/ticket/buy`,
+                data,
+                config,
+            );
+            setOpen(true);
+            setTimeout(() => {
+                setOpen(false);
+                router.push("/");
+            }, 3000);
+        } catch (error) {
+            alert("Failed to checkout");
+        }
+    };
+    if (loading) return <div>Loading...</div>;
 
     return (
         <>
@@ -174,7 +257,9 @@ export default function PaymentDetail() {
                                         <div className="relative pr-9 sm:grid sm:grid-cols-2 sm:gap-x-6 sm:pr-0">
                                             <div className="flex flex-col">
                                                 <h3 className="text-base font-medium pt-3 pb-1">My Points</h3>
-                                                <span className="text-xs font-light">Rp. {dummyPoint}</span>
+                                                <span className="text-xs font-light">
+                                                    {formatCurrency(user.pointsEarned)}
+                                                </span>
                                             </div>
                                             <div className="mt-4 sm:mt-0 sm:pr-9">
                                                 <div className="absolute right-5 top-2">
@@ -274,14 +359,16 @@ export default function PaymentDetail() {
                                             id="search"
                                             value={input}
                                             onChange={(e) => setInput(e.target.value)}
-                                            className="rounded-lg block h-14 w-72 border border-black border-opacity-25 bg-bg-main p-3 text-xs placeholder:text-gray-400"
+                                            className="rounded-lg block h-14 w-72 border border-black border-opacity-25 bg-bg-main p-3 text-xs placeholder:text-gray-400 disabled:bg-gray-200"
                                             name="search"
                                             placeholder="e.g PROMO50"
+                                            disabled={!!promo}
                                         />
                                         <div className="relative">
                                             <button
                                                 onClick={handleApplyCoupon}
-                                                className="absolute left-0 top-1 text-sm my-auto h-12 w-32 cursor-pointer rounded-lg hover:bg-gold-50 bg-gold shadow-search-bar-shadow"
+                                                className="absolute left-0 top-1 text-sm my-auto h-12 w-32 cursor-pointer rounded-lg hover:bg-gold-50 bg-gold shadow-search-bar-shadow disabled:bg-gray-200 disabled:cursor-not-allowed"
+                                                disabled={!!promo}
                                             >
                                                 Apply Coupon
                                             </button>
@@ -291,13 +378,15 @@ export default function PaymentDetail() {
                                 <dt className="text-sm text-text-main font-medium">Total Tickets</dt>
                                 <div className="flex items-center justify-between border-b border-gray-200 py-2">
                                     <dt className="text-sm text-gray-600">
-                                        <span className="font-medium mr-2">{dummyTicket.quantity} x</span>
-                                        {dummyTicket.title}
+                                        <span className="font-medium mr-2">{qtyTicket} x</span>
+                                        {event.name}
                                     </dt>
-                                    <dd className="text-sm font-medium text-gray-900">Rp. {dummyTicket.price}</dd>
+                                    <dd className="text-sm font-medium text-gray-900">
+                                        {formatCurrency(event.price * +qtyTicket!)}
+                                    </dd>
                                 </div>
                                 {/* Discount */}
-                                {isPointEnabled || promo.length > 0 ? (
+                                {isPointEnabled || promo ? (
                                     <>
                                         <dt className="text-sm text-text-main font-medium">Discount</dt>
                                         {isPointEnabled ? (
@@ -305,37 +394,29 @@ export default function PaymentDetail() {
                                                 <dt className="flex text-sm text-gray-600">
                                                     <span className="text-sm text-gray-600">Point used</span>
                                                 </dt>
-                                                <dd className="text-sm font-medium text-lime-green">- Rp. 25.000</dd>
+                                                <dd className="text-sm font-medium text-lime-green">
+                                                    - {formatCurrency(user.pointsEarned)}
+                                                </dd>
                                             </div>
                                         ) : null}
-                                        {promo.length > 0
-                                            ? promo.map((promo, index) => (
-                                                  <div
-                                                      key={index}
-                                                      className="flex items-center justify-between border-gray-200 pt-1"
-                                                  >
-                                                      <dt className="flex text-sm text-gray-600">
-                                                          <span className="text-sm text-gray-600">
-                                                              Coupon: {promo.code}
-                                                          </span>
-                                                      </dt>
-                                                      <dd className="text-sm font-medium text-lime-green">
-                                                          - Rp. {promo.discount}
-                                                      </dd>
-                                                  </div>
-                                              ))
-                                            : null}
+                                        {promo ? (
+                                            <div className="flex items-center justify-between border-gray-200 pt-1">
+                                                <dt className="flex text-sm text-gray-600">
+                                                    <span className="text-sm text-gray-600">Coupon: {promo.code}</span>
+                                                </dt>
+                                                <dd className="text-sm font-medium text-lime-green">
+                                                    - {formatCurrency(promo.discount * totalPrice)}
+                                                </dd>
+                                            </div>
+                                        ) : null}
                                     </>
                                 ) : null}
                                 <div className="flex items-center justify-between border-gray-200 pt-4">
                                     <dt className="text-base font-medium text-gray-900">Total Price</dt>
                                     <dd className="text-base font-medium text-gray-900">
-                                        Rp.
                                         {isPointEnabled
-                                            ? totalPrice -
-                                              dummyPoint -
-                                              promo.reduce((acc, promo) => acc + promo.discount!, 0)
-                                            : totalPrice - promo.reduce((acc, promo) => acc + promo.discount!, 0)}
+                                            ? formatCurrency(totalPrice - user.pointsEarned - totalDiscountPromo)
+                                            : formatCurrency(totalPrice - totalDiscountPromo)}
                                     </dd>
                                 </div>
                             </dl>
@@ -344,15 +425,7 @@ export default function PaymentDetail() {
                                 <button
                                     type="button"
                                     className="w-full rounded-md border border-transparent bg-main-color px-4 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-50"
-                                    onClick={(e) => {
-                                        if (!selectedPaymentMethod) {
-                                            e.preventDefault();
-                                            alert("Please select payment method");
-                                        } else {
-                                            e.preventDefault();
-                                            setOpen(true);
-                                        }
-                                    }}
+                                    onClick={handleCheckout}
                                 >
                                     Checkout
                                 </button>

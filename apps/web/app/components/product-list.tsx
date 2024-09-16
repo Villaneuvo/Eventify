@@ -7,7 +7,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { errorAxios } from "../interfaces/axiosHandling";
 import { Event, Review } from "../interfaces/db";
-import { formatDate } from "../utils/helpers";
+import { formatCurrency, formatDate } from "../utils/helpers";
 
 export default function ProductList({ limitDefault, category = "" }: { limitDefault: number; category: string }) {
     const [currPage, setCurrPage] = useState(1);
@@ -30,7 +30,7 @@ export default function ProductList({ limitDefault, category = "" }: { limitDefa
                         category: category,
                     };
                 }
-                const response = await axios.get(`http://localhost:3001/api/v1/events`, { params });
+                const response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL_API}/api/v1/events`, { params });
                 setTotalPages(response.data.pagination.totalPages);
                 setProducts(response.data.data);
                 setLoading(false);
@@ -40,7 +40,6 @@ export default function ProductList({ limitDefault, category = "" }: { limitDefa
             }
         }
         fetchProducts();
-        console.log(products);
     }, [category, currPage, limit]);
     if (loading) return <div>Loading...</div>;
     if (error) return <div>Error: {error}</div>;
@@ -157,11 +156,7 @@ export default function ProductList({ limitDefault, category = "" }: { limitDefa
                             <p className="mt-1 text-xs text-gray-500 mb-2">{product.location}</p>
                             <div className="flex justify-between">
                                 <p className="mt-1 text-sm font-medium text-gray-900">
-                                    {product.price.toLocaleString("id-ID", {
-                                        style: "currency",
-                                        currency: "IDR",
-                                        minimumFractionDigits: 0,
-                                    })}
+                                    {formatCurrency(product.price)}
                                 </p>
                                 <span className="text-xs flex flex-row items-center">
                                     <StarIcon className="h-4 w-4 mr-1 text-yellow-400" />

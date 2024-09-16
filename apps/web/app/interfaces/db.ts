@@ -6,7 +6,7 @@ export interface Event {
     date: Date;
     location: string;
     price: number;
-    availableTickets: number;
+    availableTicket: number;
     createdAt: Date;
     updatedAt: Date;
     mainImage: string;
@@ -48,4 +48,32 @@ export interface Review {
     createdAt: Date;
     userId: string;
     eventId: string;
+}
+
+export interface Promotion {
+    id: string;
+    code: string;
+    discount: number;
+    validFrom: Date;
+    validUntil: Date;
+    usageCount: number;
+    isEventSpecific: boolean;
+    eventId: string;
+    userId: string;
+}
+
+export interface User {
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+    referralCode: string;
+    usedReferralCode: string;
+    pointsEarned: number;
+    pointsRedeemed: number;
+    pointsExpiry: Date;
+    balance: number;
+    createdAt: Date;
+    updatedAt: Date;
+    referralId: string;
 }
