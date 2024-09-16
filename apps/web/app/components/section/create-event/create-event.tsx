@@ -47,16 +47,18 @@ export default function CreateEvent() {
                 genre: genre,
                 date: eventDate,
                 location: location,
-                price: eventPrice,
+                price: +eventPrice,
                 organizerId: session?.user.id,
-                availableTicket: availableTickets,
+                availableTicket: +availableTickets,
                 mainImage: eventImage,
-                promotions: {
-                    code: promotionName,
-                    discount: promotionDiscount,
-                    validFrom: validFrom,
-                    validUntil: validUntil,
-                },
+                promotions: [
+                    {
+                        code: promotionName,
+                        discount: +promotionDiscount / 100,
+                        validFrom: validFrom,
+                        validUntil: validUntil,
+                    },
+                ],
             };
 
             const response = await axios.post("http://localhost:3001/api/v1/events", data, config);

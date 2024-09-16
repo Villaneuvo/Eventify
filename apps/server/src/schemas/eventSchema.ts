@@ -37,8 +37,18 @@ export const createEventSchema = z.object({
             z.object({
                 code: z.string().optional(),
                 discount: z.number(),
-                validFrom: z.date(),
-                validUntil: z.date(),
+                validFrom: z
+                    .string()
+                    .transform((dateStr) => new Date(dateStr))
+                    .refine((date) => !isNaN(date.getTime()), {
+                        message: "Invalid date format",
+                    }),
+                validUntil: z
+                    .string()
+                    .transform((dateStr) => new Date(dateStr))
+                    .refine((date) => !isNaN(date.getTime()), {
+                        message: "Invalid date format",
+                    }),
             })
         )
         .optional(),
