@@ -31,14 +31,14 @@ export default function PopularEvent() {
                     `${process.env.NEXT_PUBLIC_BASE_URL_API}/api/v1/events?pageSize=${params.pageSize}`,
                 );
                 const data = response.data;
-                const filteredProduct = data.data.filter(
-                    (event: any) => event.id === "0ea7a783-95c0-4c14-9ff0-ca2f732b06d6",
-                );
+                const filteredProduct = data.data.filter((event: any) => event.name === "Twiceland Fantasy Park");
                 const filteredProducts = data.data.filter(
                     (event: any) => event.location === "Jakarta Pusat, Indonesia",
                 );
                 const sliceProduct = filteredProducts.slice(1, 3);
                 const sliceProductTwo = filteredProducts.slice(3, 5);
+
+                console.log(filteredProduct);
                 setEvent(filteredProduct);
                 setEvents(sliceProduct);
                 setEventsTwo(sliceProductTwo);
@@ -75,8 +75,8 @@ export default function PopularEvent() {
                         </Link>
                     </div>
                     <div className="hidden lg:grid lg:grid-cols-1 lg:gap-y-8">
-                        {events.map((event: Event) => (
-                            <div className="aspect-h-2 aspect-w-3 overflow-hidden rounded-2xl relative">
+                        {events.map((event: Event, index) => (
+                            <div key={index} className="aspect-h-2 aspect-w-3 overflow-hidden rounded-2xl relative">
                                 <Link href={`/events/${event.id}`}>
                                     <Image
                                         height={1000}
@@ -98,8 +98,8 @@ export default function PopularEvent() {
                         ))}
                     </div>
                     <div className="hidden lg:grid lg:grid-cols-1 lg:gap-y-8">
-                        {eventsTwo.map((event: Event) => (
-                            <div className="aspect-h-2 aspect-w-3 overflow-hidden rounded-2xl relative">
+                        {eventsTwo.map((event: Event, index) => (
+                            <div key={index} className="aspect-h-2 aspect-w-3 overflow-hidden rounded-2xl relative">
                                 <Link href={`/events/${event.id}`}>
                                     <Image
                                         height={1000}
