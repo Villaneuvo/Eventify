@@ -66,9 +66,9 @@ export default function NavigationBar() {
 
     const fetchData = async (val: string) => {
         try {
-            const res = await fetch(`https://jsonplaceholder.typicode.com/users`);
+            const res = await fetch(`http://localhost:3001/api/v1/events`);
             const data = await res.json();
-            const filteredData = data.filter((item: any) => {
+            const filteredData = data.data.filter((item: any) => {
                 return val === "" || item.name.toLowerCase().includes(val.toLowerCase());
             });
             setResult(filteredData);
