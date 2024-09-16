@@ -24,6 +24,7 @@ model User {
   pointsEarned     Int       @default(0)
   pointsRedeemed   Int       @default(0)
   pointsExpiry     DateTime?
+  balance          Float     @default(0.0)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -56,15 +57,16 @@ model AuthUser {
 }
 
 model Event {
-  id          String   @id @default(uuid())
-  name        String
-  description String
-  genre       Genre
-  date        DateTime
-  location    String
-  price       Float
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id              String   @id @default(uuid())
+  name            String
+  description     String
+  genre           Genre
+  date            DateTime
+  location        String
+  price           Float
+  availableTicket Int
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   mainImage        String @default("event-default.jpg")
   additionalImages Json   @default("[]")

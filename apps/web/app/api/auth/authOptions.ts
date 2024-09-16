@@ -23,7 +23,7 @@ export const authOptions: NextAuthOptions = {
                 if (!credentials?.email || !credentials.password) return null;
 
                 try {
-                    const response = await axios.post("http://5.9.116.5:3001/api/v1/auth/login", {
+                    const response = await axios.post("http://localhost:3001/api/v1/auth/login", {
                         email: credentials.email,
                         password: credentials.password,
                     });
@@ -64,6 +64,7 @@ export const authOptions: NextAuthOptions = {
         async jwt({ token, user }) {
             // Add the user token to the JWT token
             if (user) {
+                token.id = user.id;
                 token.name = user.name;
                 token.email = user.email;
                 token.role = user.role;
@@ -74,6 +75,7 @@ export const authOptions: NextAuthOptions = {
         async session({ session, token }) {
             // Add the token to the session
             if (session.user) {
+                session.user.id = token.id;
                 session.user.name = token.name;
                 session.user.email = token.email;
                 session.user.role = token.role;

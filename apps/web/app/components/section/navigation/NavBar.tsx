@@ -8,12 +8,12 @@ import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const account = [
     {
         name: "Create an account",
-        href: "#",
+        href: "/register",
     },
     {
         name: "Sign In",
@@ -36,11 +36,11 @@ const eventifyFeatures = [
     },
     {
         name: "Find Events",
-        href: "#",
+        href: "/events",
     },
     {
         name: "Eventify Your Events",
-        href: "#",
+        href: "/eventify-your-event",
     },
 ];
 
@@ -52,8 +52,8 @@ const mobileNavigation = [
 ];
 
 const navigation = [
-    { name: "Find events", href: "/account", icon: null },
-    { name: "Eventify your events", href: "/ticket", icon: null },
+    { name: "Find events", href: "/events", icon: null },
+    { name: "Eventify your events", href: "/events/eventify-your-event", icon: null },
     { name: "Jakarta Pusat", href: "/transaction", icon: MapPinIcon },
 ];
 
@@ -61,12 +61,17 @@ export default function NavigationBar() {
     const { status, data: session } = useSession();
     const currentPath = usePathname();
     const [input, setInput] = useState("");
+    const [result, setResult] = useState([]);
+    const [debouncedInput, setDebouncedInput] = useState(input);
 
     const fetchData = async (val: string) => {
         try {
             const res = await fetch(`https://jsonplaceholder.typicode.com/users`);
             const data = await res.json();
-            console.log(data);
+            const filteredData = data.filter((item: any) => {
+                return val === "" || item.name.toLowerCase().includes(val.toLowerCase());
+            });
+            setResult(filteredData);
         } catch (error) {
             console.error(error);
         }
@@ -74,8 +79,26 @@ export default function NavigationBar() {
 
     const handleChange = (val: string) => {
         setInput(val);
-        fetchData(val);
     };
+
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedInput(input);
+        }, 500);
+
+        return () => {
+            clearTimeout(handler);
+        };
+    }, [input]);
+
+    useEffect(() => {
+        if (debouncedInput === "") {
+            setResult([]);
+            return;
+        } else {
+            fetchData(debouncedInput);
+        }
+    }, [debouncedInput]);
 
     if (status === "loading") {
         return <span>Loading...</span>;
@@ -107,12 +130,10 @@ export default function NavigationBar() {
                         </label>
                         <div className="relative flex xl:w-72">
                             <input
-                                type="search"
-                                id="search"
+                                type="text"
                                 value={input}
                                 onChange={(e) => handleChange(e.target.value)}
                                 className="rounded-4xl block w-full border border-black border-opacity-25 bg-bg-main p-3 text-xs shadow-search-bar-shadow placeholder:text-gray-400"
-                                name="search"
                                 placeholder="Search Events"
                             />
                             <button className="my-auto h-8 w-8 -translate-x-9 cursor-pointer rounded-[100%] bg-main-color shadow-search-bar-shadow">
@@ -121,6 +142,20 @@ export default function NavigationBar() {
                                 </div>
                             </button>
                         </div>
+                        {result.length > 0 && input !== "" ? (
+                            <div className="absolute z-20 w-96 mt-5 max-h-48 overflow-y-scroll overflow-x-hidden bg-white rounded-lg shadow-2xl border border-text-main/25">
+                                <ul className="py-1">
+                                    {result.map((item: any) => (
+                                        <li
+                                            key={item.id}
+                                            className="px-4 py-2 text-sm leading-5 text-text-main hover:bg-gray-50"
+                                        >
+                                            <Link href={`/account/${item.id}`}>{item.name}</Link>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        ) : null}
                     </div>
                 </div>
                 <div className="mr-5 xs:hidden sm:block">
