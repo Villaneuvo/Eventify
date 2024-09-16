@@ -2,7 +2,6 @@
 
 import { Popover, PopoverButton, PopoverGroup, PopoverPanel, Transition } from "@headlessui/react";
 import { MapPinIcon } from "@heroicons/react/24/outline";
-
 import classNames from "classnames";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
@@ -57,6 +56,17 @@ const navigation = [
     { name: "Jakarta Pusat", href: "/transaction", icon: MapPinIcon },
 ];
 
+interface ItemEvent {
+    id: string;
+    price: number;
+    mainImage: string;
+    name: string;
+    url?: string;
+    date: string;
+    time: string;
+    location: string;
+}
+
 export default function NavigationBar() {
     const { status, data: session } = useSession();
     const currentPath = usePathname();
@@ -71,6 +81,7 @@ export default function NavigationBar() {
             const filteredData = data.data.filter((item: any) => {
                 return val === "" || item.name.toLowerCase().includes(val.toLowerCase());
             });
+            console.log(filteredData);
             setResult(filteredData);
         } catch (error) {
             console.error(error);
@@ -148,9 +159,27 @@ export default function NavigationBar() {
                                     {result.map((item: any) => (
                                         <li
                                             key={item.id}
-                                            className="px-4 py-2 text-sm leading-5 text-text-main hover:bg-gray-50"
+                                            className="px-4 py-2 text-sm leading-5 text-text-main hover:bg-gray-50 "
                                         >
-                                            <Link href={`/account/${item.id}`}>{item.name}</Link>
+                                            <Link className="flex items-center" href={`/events/${item.id}`}>
+                                                <div className="w-32 shrink-0">
+                                                    <Image
+                                                        height={500}
+                                                        width={500}
+                                                        className="aspect-[3/2] rounded-lg shadow"
+                                                        src={item.mainImage}
+                                                        alt={item.name}
+                                                    />
+                                                </div>
+                                                <div className="text-sm ml-3">
+                                                    <span>{item.name}</span>
+                                                    <span className="block text-xs">
+                                                        {new Date(item.date).getDate()}-{new Date(item.date).getMonth()}
+                                                        -{new Date(item.date).getFullYear()}, {item.location}
+                                                    </span>
+                                                    <span className="block text-xs">Rp. {item.price}</span>
+                                                </div>
+                                            </Link>
                                         </li>
                                     ))}
                                 </ul>

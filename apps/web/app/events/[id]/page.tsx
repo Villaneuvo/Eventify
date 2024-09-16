@@ -50,7 +50,7 @@ export default function DetailsEventPage({ params }: { params: { id: string } })
         async function fetchEvent() {
             try {
                 setLoading(true);
-                const response = await axios.get(`http://5.9.116.5:3001/api/v1/events/${eventId}`, config);
+                const response = await axios.get(`http://localhost:3001/api/v1/events/${eventId}`, config);
                 setEvent(response.data);
                 setLoading(false);
             } catch (error) {

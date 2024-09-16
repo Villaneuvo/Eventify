@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getServerSession } from "next-auth";
 import { Poppins } from "next/font/google";
+import QueryClientProvider from "./QueryClientProvider";
 import { authOptions } from "./api/auth/authOptions";
 import "./globals.css";
 import AuthProvider from "./utils/authProvider";
@@ -22,9 +23,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     return (
         <html lang="en">
             <body className={poppins.className}>
-                <AuthProvider session={session}>
-                    <main>{children}</main>
-                </AuthProvider>
+                <QueryClientProvider>
+                    <AuthProvider session={session}>
+                        <main>{children}</main>
+                    </AuthProvider>
+                </QueryClientProvider>
             </body>
         </html>
     );
