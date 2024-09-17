@@ -28,7 +28,7 @@ export default function VerifyEmailPage() {
                         href="/login"
                         className="mt-8 block w-full rounded-md bg-blue-600 px-4 py-2 text-center text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                     >
-                        Let's try login
+                        {`Let's try login`}
                     </Link>
                 </div>
             </div>
