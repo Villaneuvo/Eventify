@@ -13,7 +13,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { ApplicationLayout } from "../../sidebar-layout";
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL_API;
 
 import { Pagination, PaginationList, PaginationPage } from "@/app/components/panel/pagination";
 import Image from "next/image";
@@ -41,7 +41,7 @@ const EventsPage = () => {
         isLoading,
     } = useQuery<{ data: Event[]; pagination: { totalPages: number; total: number } }>({
         queryKey: ["events", page],
-        queryFn: () => axios.get(`${BASE_URL}/events`, { params: { page, pageSize } }).then((res) => res.data),
+        queryFn: () => axios.get(`${BASE_URL}/api/v1/events`, { params: { page, pageSize } }).then((res) => res.data),
     });
 
     const events = eventsData?.data;

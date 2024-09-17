@@ -134,7 +134,7 @@ export default function ProductList({ limitDefault, category = "" }: { limitDefa
                         product.reviews.length !== 0
                             ? product.reviews.reduce((acc: number, review: Review) => acc + review.rating, 0) /
                               product.reviews.length
-                            : 1;
+                            : 4;
                     return (
                         <div key={product.id} className="group relative my-8">
                             <div className="h-56 w-full overflow-hidden rounded-md bg-gray-200 group-hover:opacity-75 lg:h-72 xl:h-80">
@@ -156,7 +156,7 @@ export default function ProductList({ limitDefault, category = "" }: { limitDefa
                             <p className="mt-1 text-xs text-gray-500 mb-2">{product.location}</p>
                             <div className="flex justify-between">
                                 <p className="mt-1 text-sm font-medium text-gray-900">
-                                    {formatCurrency(product.price)}
+                                    {product.price === 0 ? "FREE" : formatCurrency(product.price)}
                                 </p>
                                 <span className="text-xs flex flex-row items-center">
                                     <StarIcon className="h-4 w-4 mr-1 text-yellow-400" />
