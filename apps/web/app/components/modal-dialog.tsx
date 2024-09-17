@@ -22,8 +22,8 @@ export default function Modal({
             setOpen(false);
             return;
         }
-        setOpen(false); // Close the modal
-        router.push("/"); // Navigate to the home page
+        setOpen(false);
+        router.push("/");
     };
 
     return (
