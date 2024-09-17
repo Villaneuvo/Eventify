@@ -1,26 +1,11 @@
 import { Avatar } from "@/app/components/panel/avatar";
-import { Badge } from "@/app/components/panel/badge";
-import { Divider } from "@/app/components/panel/divider";
 import { Heading, Subheading } from "@/app/components/panel/heading";
 import { Select } from "@/app/components/panel/select";
+import Stat from "@/app/components/panel/stat";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/app/components/panel/table";
 import { getRecentOrders } from "@/app/utils/data";
 import { getServerSession } from "next-auth";
 import { ApplicationLayout } from "../sidebar-layout";
-
-export function Stat({ title, value, change }: { title: string; value: string; change: string }) {
-    return (
-        <div>
-            <Divider />
-            <div className="mt-6 text-lg/6 font-medium sm:text-sm/6">{title}</div>
-            <div className="mt-3 text-3xl/8 font-semibold sm:text-2xl/8">{value}</div>
-            <div className="mt-3 text-sm/6 sm:text-xs/6">
-                <Badge color={change.startsWith("+") ? "lime" : "pink"}>{change}</Badge>{" "}
-                <span className="text-zinc-500">from last week</span>
-            </div>
-        </div>
-    );
-}
 
 export default async function Home() {
     let orders = await getRecentOrders();
