@@ -43,7 +43,7 @@ export default function PopularEvent() {
                 setEventsTwo(sliceProductTwo);
                 setLoading(false);
             } catch (error) {
-                console.log(error);
+                alert("Failed to fetch products");
                 setLoading(false);
             }
         }

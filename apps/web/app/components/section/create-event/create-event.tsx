@@ -62,7 +62,6 @@ export default function CreateEvent() {
             };
 
             const response = await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL_API}/api/v1/events`, data, config);
-            console.log(response.data);
         } catch (error) {
             console.error("Error uploading file:", error);
         }
