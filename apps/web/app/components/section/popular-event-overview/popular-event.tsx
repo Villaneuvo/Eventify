@@ -38,13 +38,12 @@ export default function PopularEvent() {
                 const sliceProduct = filteredProducts.slice(1, 3);
                 const sliceProductTwo = filteredProducts.slice(3, 5);
 
-                console.log(filteredProduct);
                 setEvent(filteredProduct);
                 setEvents(sliceProduct);
                 setEventsTwo(sliceProductTwo);
                 setLoading(false);
             } catch (error) {
-                console.log(error);
+                alert("Failed to fetch products");
                 setLoading(false);
             }
         }

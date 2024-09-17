@@ -18,8 +18,6 @@ const steps = [
     { id: "3", name: "Finish", href: "#", status: "upcoming" },
 ];
 
-const dummyPoint = 25000;
-
 const paymentMethods = [
     {
         id: 1,

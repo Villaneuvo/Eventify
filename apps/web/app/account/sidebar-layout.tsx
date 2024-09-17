@@ -1,25 +1,12 @@
 "use client";
 
-import { ArrowRightStartOnRectangleIcon, ChevronUpIcon, Cog8ToothIcon } from "@heroicons/react/16/solid";
-import {
-    HomeIcon,
-    MegaphoneIcon,
-    QuestionMarkCircleIcon,
-    Square2StackIcon,
-    TicketIcon,
-} from "@heroicons/react/20/solid";
+import { ArrowRightStartOnRectangleIcon, ChevronUpIcon } from "@heroicons/react/16/solid";
+import { HomeIcon, Square2StackIcon } from "@heroicons/react/20/solid";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { Avatar } from "../components/panel/avatar";
-import {
-    Dropdown,
-    DropdownButton,
-    DropdownDivider,
-    DropdownItem,
-    DropdownLabel,
-    DropdownMenu,
-} from "../components/panel/dropdown";
+import { Dropdown, DropdownButton, DropdownItem, DropdownLabel, DropdownMenu } from "../components/panel/dropdown";
 import { Navbar, NavbarItem, NavbarSection, NavbarSpacer } from "../components/panel/navbar";
 import {
     Sidebar,
@@ -36,11 +23,6 @@ import { SidebarLayout } from "../components/panel/sidebar-layout";
 function AccountDropdownMenu({ anchor }: { anchor: "top start" | "bottom end" }) {
     return (
         <DropdownMenu className="min-w-64" anchor={anchor}>
-            <DropdownItem href="/settings">
-                <Cog8ToothIcon />
-                <DropdownLabel>Settings</DropdownLabel>
-            </DropdownItem>
-            <DropdownDivider />
             <DropdownItem href="/api/auth/signout">
                 <ArrowRightStartOnRectangleIcon />
                 <DropdownLabel>Sign out</DropdownLabel>
@@ -102,26 +84,8 @@ export function ApplicationLayout({ children }: { children: React.ReactNode }) {
                                 <Square2StackIcon />
                                 <SidebarLabel>Events</SidebarLabel>
                             </SidebarItem>
-                            <SidebarItem href="/orders" className="mb-1" current={pathname.startsWith("/orders")}>
-                                <TicketIcon />
-                                <SidebarLabel>Orders</SidebarLabel>
-                            </SidebarItem>
-                            <SidebarItem
-                                href="/broadcasts"
-                                className="mb-1"
-                                current={pathname.startsWith("/broadcasts")}
-                            >
-                                <MegaphoneIcon />
-                                <SidebarLabel>Broadcasts</SidebarLabel>
-                            </SidebarItem>
                         </SidebarSection>
                         <SidebarSpacer />
-                        <SidebarSection>
-                            <SidebarItem href="/support">
-                                <QuestionMarkCircleIcon />
-                                <SidebarLabel>Support</SidebarLabel>
-                            </SidebarItem>
-                        </SidebarSection>
                     </SidebarBody>
                     <SidebarFooter className="max-lg:hidden">
                         <Dropdown>
