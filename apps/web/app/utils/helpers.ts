@@ -16,6 +16,9 @@ export function formatDate(date1: Date) {
 }
 
 export function formatCurrency(value: number) {
+    if (value <= 0) {
+        return "FREE";
+    }
     return new Intl.NumberFormat("id-ID", currencyFormatOptions).format(value);
 }
 

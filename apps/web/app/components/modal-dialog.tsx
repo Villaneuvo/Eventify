@@ -6,13 +6,22 @@ import { useRouter } from "next/navigation";
 export default function Modal({
     open,
     setOpen,
+    error,
+    setError,
 }: {
     open: boolean;
     setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+    error: string;
+    setError: React.Dispatch<React.SetStateAction<string>>;
 }) {
     const router = useRouter();
 
     const handleButtonClick = () => {
+        if (error) {
+            setError("");
+            setOpen(false);
+            return;
+        }
         setOpen(false); // Close the modal
         router.push("/"); // Navigate to the home page
     };
@@ -33,11 +42,13 @@ export default function Modal({
                         <div>
                             <div className="mt-3 text-center sm:mt-5">
                                 <DialogTitle as="h3" className="text-base font-semibold leading-6 text-gray-900">
-                                    Success Payment
+                                    {error ? "Failed" : "Success Payment"}
                                 </DialogTitle>
                                 <div className="mt-2">
                                     <p className="text-sm text-gray-500">
-                                        Your payment has been successfully processed. Thank you for your purchase!
+                                        {error
+                                            ? error
+                                            : "Your payment has been successfully processed. Thank you for your purchase!"}
                                     </p>
                                 </div>
                             </div>
@@ -48,7 +59,7 @@ export default function Modal({
                                 onClick={handleButtonClick}
                                 className="inline-flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                             >
-                                Check Payment Status
+                                {error ? "Back" : "Check Payment Status"}
                             </button>
                         </div>
                     </DialogPanel>

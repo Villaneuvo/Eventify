@@ -23,21 +23,27 @@ const dummyPoint = 25000;
 const paymentMethods = [
     {
         id: 1,
+        name: "My Balance",
+        imageSrc: "balance.svg",
+        imageAlt: "Balance wallet logo",
+    },
+    {
+        id: 2,
         name: "Gopay",
         imageSrc: "gopay.svg",
         imageAlt: "Gopay wallet logo",
     },
     {
-        id: 2,
+        id: 3,
         name: "Dana",
         imageSrc: "dana.svg",
-        imageAlt: "Front of men's Basic Tee in sienna.",
+        imageAlt: "Dana wallet logo",
     },
     {
-        id: 3,
+        id: 4,
         name: "OVO",
         imageSrc: "ovo-logo.svg",
-        imageAlt: "Front of men's Basic Tee in sienna.",
+        imageAlt: "OVO wallet logo",
     },
 ];
 
@@ -49,6 +55,7 @@ export default function PaymentDetail() {
     const [isPointEnabled, setPointEnabled] = useState(false);
     const [input, setInput] = useState("");
     const [open, setOpen] = useState(false);
+    const [error, setError] = useState("");
     const [promo, setPromo] = useState<Promotion | null>(null);
     const [totalDiscountPromo, setTotalDiscountPromo] = useState(0);
     const searchParams = useSearchParams();
@@ -119,20 +126,23 @@ export default function PaymentDetail() {
                     config,
                 );
                 if (response.data.eventId != eventId) {
-                    alert("Promo code not valid for this event");
+                    setError("Promo code not valid for this event");
                     setInput("");
+                    setOpen(true);
                     return;
                 }
                 if (response.data.code === promo?.code) {
-                    alert("Promo code already used");
+                    setError("Promo code already used");
                     setInput("");
+                    setOpen(true);
                     return;
                 }
                 setPromo(response.data);
                 setInput("");
             } catch (error) {
-                alert("Invalid promo code");
+                setError("Invalid promo code");
                 setInput("");
+                setOpen(true);
             }
         }
         fetchPromo();
@@ -145,7 +155,13 @@ export default function PaymentDetail() {
     const handleCheckout = async (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
         if (!selectedPaymentMethod) {
-            alert("Please select payment method");
+            setError("Please select payment method");
+            setOpen(true);
+            return;
+        }
+        if (selectedPaymentMethod !== 1) {
+            setError("Payment method not available");
+            setOpen(true);
             return;
         }
         const data = promo
@@ -174,7 +190,8 @@ export default function PaymentDetail() {
                 router.push("/");
             }, 3000);
         } catch (error) {
-            alert("Failed to checkout");
+            setError("Failed to checkout");
+            setOpen(true);
         }
     };
     if (loading) return <div>Loading...</div>;
@@ -321,7 +338,22 @@ export default function PaymentDetail() {
 
                                         <div className="ml-4 flex flex-1 flex-col justify-between sm:ml-6">
                                             <div className="relative pr-9 sm:grid sm:grid-cols-2 sm:gap-x-6 sm:pr-0">
-                                                <h3 className="text-base font-medium py-3">{item.name}</h3>
+                                                <div className="flex flex-col">
+                                                    <h3
+                                                        className={
+                                                            item.id === 1
+                                                                ? "text-base font-medium pt-3 pb-1"
+                                                                : "text-base font-medium py-3"
+                                                        }
+                                                    >
+                                                        {item.name}
+                                                    </h3>
+                                                    {item.id === 1 && (
+                                                        <span className="text-xs font-light">
+                                                            {formatCurrency(user.balance)}
+                                                        </span>
+                                                    )}
+                                                </div>
                                                 <div className="mt-4 sm:mt-0 sm:pr-9">
                                                     <div className="absolute right-10 top-2">
                                                         <input
@@ -433,7 +465,7 @@ export default function PaymentDetail() {
                         </section>
                     </form>
                 </div>
-                {open && <Modal open={open} setOpen={setOpen} />}
+                {open && <Modal open={open} setOpen={setOpen} error={error} setError={setError} />}
             </div>
             <footer aria-labelledby="footer-heading" className="bg-white border-t border-gray-900/10">
                 <div className="lg:mx-[6.25rem] xl:mx-[7.813rem] pb-8">
