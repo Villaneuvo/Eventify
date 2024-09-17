@@ -1,9 +1,11 @@
 {
-    "rewrites": [{ "source": "/apps/web/(.*)", "destination": "/apps/web/app/$1" }],
-    "headers": [
+    "rewrites": [
+        { "source": "/apps/web/(.*)", "destination": "/apps/web/app/$1" },
         {
-            "source": "/(.*)",
-            "headers": [{ "key": "Access-Control-Allow-Origin", "value": "*" }]
+            "src": "/(.*)",
+            "dest": "/src/app.ts",
+            "methods": ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+            "headers": { "AccessControlAllowOrigin": "*" }
         }
     ]
 }
