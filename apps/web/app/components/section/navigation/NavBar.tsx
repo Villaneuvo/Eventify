@@ -74,9 +74,50 @@ export default function NavigationBar() {
     const [result, setResult] = useState([]);
     const [debouncedInput, setDebouncedInput] = useState(input);
     const [selectedArea, setSelectedArea] = useState("Jakarta Pusat");
+    const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
+    const [error, setError] = useState<string | null>(null);
 
-    const handleSelection = (value: string) => {
-        setSelectedArea(value);
+    useEffect(() => {
+        if ("geolocation" in navigator) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const { latitude, longitude } = position.coords;
+                    setLocation({ lat: latitude, lng: longitude });
+                    reverseGeocode(latitude, longitude);
+                },
+                (err) => {
+                    setError("Error retrieving location");
+                },
+                { enableHighAccuracy: true },
+            );
+        } else {
+            setError("Geolocation is not supported by this browser.");
+        }
+    }, []);
+
+    const reverseGeocode = async (lat: number, lng: number) => {
+        try {
+            const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+            const response = await fetch(
+                `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${apiKey}`,
+            );
+            const data = await response.json();
+            console.log("data", lat, lng);
+
+            if (data.status === "OK") {
+                const city = data.plus_code.compound_code.split(",")[1].trim();
+                if (city) {
+                    setSelectedArea(city);
+                } else {
+                    setError("City not found in the location data");
+                }
+            } else {
+                setError("Failed to get location details");
+            }
+        } catch (error) {
+            console.error("Error during reverse geocoding:", error);
+            setError("Reverse geocoding failed");
+        }
     };
 
     const fetchData = async (val: string) => {
@@ -169,7 +210,7 @@ export default function NavigationBar() {
                             </button>
                         </div>
                         {input !== "" ? (
-                            <div className="absolute z-20 w-96 mt-5 max-h-48 overflow-y-scroll overflow-x-hidden bg-white rounded-lg shadow-2xl border border-text-main/25">
+                            <div className="absolute z-30 w-96 mt-5 max-h-48 overflow-y-scroll overflow-x-hidden bg-white rounded-lg shadow-2xl border border-text-main/25">
                                 <ul className="py-1">
                                     {result.length === 0 ? (
                                         <li className="p-4 text-sm text-text-main">No results found</li>
@@ -223,17 +264,8 @@ export default function NavigationBar() {
                         >
                             {item.name === "Jakarta Pusat" && item.icon ? (
                                 <div className="inline">
-                                    <item.icon className="my-auto inline h-4 w-4" />
-                                    <select
-                                        className="border-0 rounded-[1.875rem] focus:outline-none"
-                                        onChange={(e) => handleSelection(e.target.value)}
-                                    >
-                                        <option value="Jakarta Pusat">Jakarta Pusat</option>
-                                        <option value="Jakarta Barat">Jakarta Barat</option>
-                                        <option value="Jakarta Timur">Jakarta Timur</option>
-                                        <option value="Jakarta Utara">Jakarta Utara</option>
-                                        <option value="Jakarta Selatan">Jakarta Selatan</option>
-                                    </select>
+                                    <item.icon className="my-auto mr-2 inline h-4 w-4" />
+                                    {selectedArea}
                                 </div>
                             ) : (
                                 <span className="sm:hidden lg:inline">
@@ -259,7 +291,7 @@ export default function NavigationBar() {
                             leaveFrom="opacity-100 translate-y-0"
                             leaveTo="opacity-0 translate-y-1"
                         >
-                            <PopoverPanel className="rounded-3xl absolute -right-7 top-full z-10 mt-3 w-[20rem] max-w-md overflow-hidden bg-white shadow-nav-btn-shadow ring-1 ring-gray-900/5 md:right-3">
+                            <PopoverPanel className="rounded-3xl absolute -right-7 top-full z-30 mt-3 w-[20rem] max-w-md overflow-hidden bg-white shadow-nav-btn-shadow ring-1 ring-gray-900/5 md:right-3">
                                 <div className="p-4 pb-0 text-text-main">
                                     {filteredAccount.map((item) => (
                                         <div
@@ -324,7 +356,7 @@ export default function NavigationBar() {
                                                     href={item.href}
                                                     className="block font-medium text-text-main hover:text-main-color"
                                                 >
-                                                    {item.name}
+                                                    {selectedArea}
                                                     <span className="absolute inset-0" />
                                                 </Link>
                                             </div>

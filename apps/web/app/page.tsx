@@ -1,5 +1,3 @@
-// import Jumbotron from "./components/Jumbotron-beta";
-
 import Footer from "./components/section/footer/Footer";
 import Jumbotron from "./components/section/jumbotron/jumbotron";
 import NavigationBar from "./components/section/navigation/NavBar";

@@ -19,11 +19,11 @@ export default function ConfirmEmailPage() {
                 </div>
 
                 <div className="mt-8 text-center sm:mx-auto sm:w-full sm:max-w-sm">
-                    <p>You're almost there! We sent email to</p>
+                    <p>{`You're almost there! We sent email to`}</p>
                     <p className="font-bold">member@email.com</p>
                     <p className="mt-8 text-pretty">
-                        Just click on the link in that email to complete your sign up. If you don't see it, you may need
-                        to check your spam folder.
+                        {`Just click on the link in that email to complete your sign up. If you don't see it, you may need
+                        to check your spam folder.`}
                     </p>
                     <Link
                         href="/"
