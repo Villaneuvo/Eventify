@@ -302,14 +302,14 @@ export default function NavigationBar() {
                                                 <Link
                                                     // href={
                                                     //     session?.user?.role === "ORGANIZER"
-                                                    //         ? `${item.href}/event-oraganizer`
+                                                    //         ? `${item.href}/event-organizer`
                                                     //         : `${item.href}/attendee`
                                                     // }
                                                     href={
                                                         (item.name === "Good day," &&
                                                             session?.user?.role === "ORGANIZER") ||
                                                         session?.user?.role === "ADMIN"
-                                                            ? `${item.href}/event-oraganizer`
+                                                            ? `${item.href}/event-organizer`
                                                             : session?.user?.role === "ATTENDEE" &&
                                                                 item.name === "Good day,"
                                                               ? `${item.href}/attendee`

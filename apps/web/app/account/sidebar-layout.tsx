@@ -69,15 +69,15 @@ export function ApplicationLayout({ children }: { children: React.ReactNode }) {
                     <SidebarBody>
                         <SidebarSection>
                             <SidebarItem
-                                href="/account/event-oraganizer"
+                                href="/account/event-organizer"
                                 className="mb-1"
-                                current={pathname === "/account/event-oraganizer"}
+                                current={pathname === "/account/event-organizer"}
                             >
                                 <HomeIcon />
                                 <SidebarLabel>Home</SidebarLabel>
                             </SidebarItem>
                             <SidebarItem
-                                href="/account/event-oraganizer/events"
+                                href="/account/event-organizer/events"
                                 className="mb-1"
                                 current={pathname.startsWith("/events")}
                             >
