@@ -67,24 +67,26 @@ export function ApplicationLayout({ children }: { children: React.ReactNode }) {
                         </SidebarSection>
                     </SidebarHeader>
                     <SidebarBody>
-                        <SidebarSection>
-                            <SidebarItem
-                                href="/account/event-organizer"
-                                className="mb-1"
-                                current={pathname === "/account/event-organizer"}
-                            >
-                                <HomeIcon />
-                                <SidebarLabel>Home</SidebarLabel>
-                            </SidebarItem>
-                            <SidebarItem
-                                href="/account/event-organizer/events"
-                                className="mb-1"
-                                current={pathname.startsWith("/events")}
-                            >
-                                <Square2StackIcon />
-                                <SidebarLabel>Events</SidebarLabel>
-                            </SidebarItem>
-                        </SidebarSection>
+                        {session?.user?.role === "ATTENDEE" ? null : (
+                            <SidebarSection>
+                                <SidebarItem
+                                    href="/account/event-organizer"
+                                    className="mb-1"
+                                    current={pathname === "/account/event-organizer"}
+                                >
+                                    <HomeIcon />
+                                    <SidebarLabel>Home</SidebarLabel>
+                                </SidebarItem>
+                                <SidebarItem
+                                    href="/account/event-organizer/events"
+                                    className="mb-1"
+                                    current={pathname.startsWith("/events")}
+                                >
+                                    <Square2StackIcon />
+                                    <SidebarLabel>Events</SidebarLabel>
+                                </SidebarItem>
+                            </SidebarSection>
+                        )}
                         <SidebarSpacer />
                     </SidebarBody>
                     <SidebarFooter className="max-lg:hidden">
