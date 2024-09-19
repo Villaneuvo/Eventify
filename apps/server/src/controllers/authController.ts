@@ -65,7 +65,7 @@ export const register = async (req: Request, res: Response) => {
             await prisma.promotion.create({
                 data: {
                     code: promotionCode,
-                    discount: 10.0,
+                    discount: 0.1,
                     validFrom: new Date(),
                     validUntil,
                     isEventSpecific: false,

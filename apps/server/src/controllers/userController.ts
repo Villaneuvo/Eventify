@@ -17,8 +17,13 @@ export const getAllUsers = async (req: Request, res: Response) => {
     res.json(usersWithoutPassword);
 };
 
-export const getUserById = async (req: Request, res: Response) => {
+export const getUserById = async (req: AuthenticatedRequest, res: Response) => {
     const { id } = req.params;
+
+    if (req.user?.id !== id) {
+        return res.status(403).json({ message: "You are not authorized to view this profile" });
+    }
+
     const user = await prisma.user.findUnique({ where: { id } });
     if (!user) return res.status(404).json({ message: "User not found" });
     const { password, ...userWithoutPassword } = user;

@@ -12,9 +12,9 @@ const promotionSchema = z.object({
 export const buyTicketSchema = z.object({
     eventId: z.string(),
     userId: z.string(),
-    ticketType: z.enum(["GENERAL_ADMISSION", "VIP", "EARLY_BIRD"]),
     quantity: z.number().min(1, "You must purchase at least 1 ticket"), // New quantity field
     usePoints: z.boolean().optional(), // Optional field to redeem points
+    promoCode: z.string().optional(), // Optional field for promo code
 });
 
 export const createEventSchema = z.object({

@@ -28,6 +28,51 @@ export const getTransactionById = async (req: Request, res: Response) => {
     }
 };
 
+export const getAllTransactionByUser = async (req: AuthenticatedRequest, res: Response) => {
+    const { id } = req.params;
+    try {
+        if (req.user?.id !== id) {
+            return res.status(403).json({ message: "You are not authorized to view this profile" });
+        }
+
+        const transactions = await prisma.transaction.findMany({
+            where: { userId: id },
+            include: {
+                tickets: true, // Include the ticket details in the query
+                promotion: true, // Include the promotion details in the query
+            },
+        });
+        res.json(transactions);
+    } catch (error) {
+        console.error("Error retrieving transactions:", error);
+        res.status(500).json({ message: "Failed to retrieve transactions", error });
+    }
+};
+
+export const getTransactionByUser = async (req: AuthenticatedRequest, res: Response) => {
+    const { id, transactionId } = req.params;
+
+    try {
+        if (req.user?.id !== id) {
+            return res.status(403).json({ message: "You are not authorized to view this profile" });
+        }
+
+        const transaction = await prisma.transaction.findUnique({
+            where: { userId: id, id: transactionId },
+            include: {
+                tickets: true, // Include the ticket details in the query
+                promotion: true, // Include the promotion details in the query
+            },
+        });
+
+        if (!transaction) return res.status(404).json({ message: "Transaction not found" });
+        res.json(transaction);
+    } catch (error) {
+        console.error("Error retrieving transaction:", error);
+        res.status(500).json({ message: "Failed to retrieve transaction", error });
+    }
+};
+
 export const createTransaction = async (req: AuthenticatedRequest, res: Response) => {
     try {
         if (!req.user?.id) {

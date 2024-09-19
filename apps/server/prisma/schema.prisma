@@ -91,17 +91,18 @@ enum Genre {
 
 model Ticket {
   id       String     @id @default(uuid())
-  type     TicketType
+  type     TicketType @default(GENERAL_ADMISSION)
   price    Float
   issuedAt DateTime   @default(now())
   redeemed Boolean    @default(false)
 
   // Relations
-  eventId     String
-  event       Event         @relation(fields: [eventId], references: [id])
-  userId      String
-  user        User          @relation(fields: [userId], references: [id])
-  transaction Transaction[]
+  eventId       String
+  event         Event        @relation(fields: [eventId], references: [id])
+  userId        String
+  user          User         @relation(fields: [userId], references: [id])
+  transactionId String?
+  transaction   Transaction? @relation(fields: [transactionId], references: [id]) // Optional relation to a transaction
 }
 
 enum TicketType {
@@ -165,17 +166,15 @@ model Merchandise {
 }
 
 model Transaction {
-  id        String   @id @default(uuid())
-  amount    Float
-  createdAt DateTime @default(now())
-
-  // Relations
-  userId        String
-  user          User         @relation(fields: [userId], references: [id])
-  ticketId      String?
-  ticket        Ticket?      @relation(fields: [ticketId], references: [id])
+  id          String      @id @default(uuid())
+  amount      Float
+  createdAt   DateTime    @default(now())
+  
+  userId      String
+  user        User        @relation(fields: [userId], references: [id])
+  tickets     Ticket[]    // Relation for multiple tickets
   merchandiseId String?
-  merchandise   Merchandise? @relation(fields: [merchandiseId], references: [id])
-  promotionId   String?
-  promotion     Promotion?   @relation(fields: [promotionId], references: [id])
+  merchandise Merchandise? @relation(fields: [merchandiseId], references: [id])
+  promotionId String?
+  promotion   Promotion?   @relation(fields: [promotionId], references: [id])
 }

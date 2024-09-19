@@ -14,10 +14,10 @@ export const getAllPromotions = async (req: Request, res: Response) => {
     }
 };
 
-export const getPromotionById = async (req: Request, res: Response) => {
-    const { id } = req.params;
+export const getPromotionByCode = async (req: Request, res: Response) => {
+    const { code } = req.params;
     try {
-        const promotion = await prisma.promotion.findUnique({ where: { id } });
+        const promotion = await prisma.promotion.findUnique({ where: { code } });
         if (!promotion) return res.status(404).json({ message: "Promotion not found" });
         res.json(promotion);
     } catch (error) {
