@@ -359,27 +359,22 @@ async function main() {
             {
                 amount: generalAdmissionTicket1.price,
                 userId: alex.id,
-                ticketId: generalAdmissionTicket1.id,
             },
             {
                 amount: vipTicket1.price,
                 userId: alex.id,
-                ticketId: vipTicket1.id,
             },
             {
                 amount: earlyBirdTicket2.price,
                 userId: alex.id,
-                ticketId: earlyBirdTicket2.id,
             },
             {
                 amount: generalAdmissionTicket3.price,
                 userId: joni.id,
-                ticketId: generalAdmissionTicket3.id,
             },
             {
                 amount: vipTicket3.price,
                 userId: joni.id,
-                ticketId: vipTicket3.id,
             },
             {
                 amount: merchandise1.price,

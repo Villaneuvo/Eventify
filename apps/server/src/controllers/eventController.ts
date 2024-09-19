@@ -126,6 +126,8 @@ export const getEventById = async (req: Request, res: Response) => {
 
 export const createEvent = async (req: Request, res: Response) => {
     try {
+        console.log(req.body);
+
         const parsedData = createEventSchema.parse(req.body);
 
         await prisma.$transaction(async (prisma) => {
@@ -200,12 +202,12 @@ export const updateEvent = async (req: AuthenticatedRequest, res: Response) => {
                     availableTicket: parsedData.availableTicket,
                     promotions: parsedData.promotions
                         ? {
-                            upsert: parsedData.promotions.map((promo) => ({
-                                where: { id: promo.id || undefined },
-                                update: promo,
-                                create: promo,
-                            })),
-                        }
+                              upsert: parsedData.promotions.map((promo) => ({
+                                  where: { id: promo.id || undefined },
+                                  update: promo,
+                                  create: promo,
+                              })),
+                          }
                         : undefined,
                 },
             });
@@ -242,7 +244,7 @@ export const deleteEvent = async (req: AuthenticatedRequest, res: Response) => {
 export const buyTicket = async (req: Request, res: Response) => {
     try {
         const parsedData = buyTicketSchema.parse(req.body);
-        const { eventId, userId, ticketType, quantity = 1, usePoints = false } = parsedData;
+        const { eventId, userId, quantity = 1, usePoints = false, promoCode } = parsedData;
 
         const event = await prisma.event.findUnique({ where: { id: eventId } });
         if (!event) {
@@ -255,17 +257,50 @@ export const buyTicket = async (req: Request, res: Response) => {
 
         let finalPrice = event.price * quantity;
         let pointsUsed = 0;
+        let promoDiscount = 0;
 
-        if (usePoints) {
-            const user = await prisma.user.findUnique({ where: { id: userId } });
-            if (user && user.pointsEarned > 0) {
-                const availablePoints = Math.min(user.pointsEarned - user.pointsRedeemed, finalPrice);
-                pointsUsed = Math.max(0, availablePoints);
+        // Fetch user and check balance
+        const user = await prisma.user.findUnique({ where: { id: userId } });
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // Apply promo code if provided
+        let promotionId = null;
+        if (promoCode) {
+            const promotion = await prisma.promotion.findUnique({ where: { code: promoCode } });
+            if (!promotion) {
+                return res.status(400).json({ message: "Invalid promo code" });
+            }
+            // Calculate discount from promo code
+            promoDiscount = (promotion.discount / 100) * finalPrice;
+            finalPrice -= promoDiscount;
+            promotionId = promotion.id;
+        }
+
+        // Deduct points if applicable
+        if (usePoints && user.pointsEarned > 0) {
+            const availablePoints = user.pointsEarned;
+
+            // If the available points are more than or equal to the final price, make the ticket free
+            if (availablePoints >= finalPrice) {
+                pointsUsed = finalPrice;
+                finalPrice = 0; // The user gets the tickets for free
+            } else {
+                // If available points are less than the final price, apply them to reduce the price
+                pointsUsed = availablePoints;
                 finalPrice -= pointsUsed;
             }
         }
 
+        // Check if the user has sufficient balance (if the price is not fully covered by points)
+        if (finalPrice > 0 && user.balance < finalPrice) {
+            return res.status(400).json({ message: "Insufficient balance to complete the purchase" });
+        }
+
+        // Create the transaction and link all tickets to it
         await prisma.$transaction(async (prisma) => {
+            // Deduct tickets
             await prisma.event.update({
                 where: { id: eventId },
                 data: {
@@ -275,34 +310,53 @@ export const buyTicket = async (req: Request, res: Response) => {
                 },
             });
 
-            for (let i = 0; i < quantity; i++) {
-                await prisma.ticket.create({
+            // Create the transaction record first
+            const transaction = await prisma.transaction.create({
+                data: {
+                    amount: finalPrice, // The actual amount paid (after points and promo)
+                    userId: userId,
+                    promotionId: promotionId,
+                },
+            });
+
+            // Create tickets and link them to the transaction
+            const ticketsData = Array.from({ length: quantity }).map(() => ({
+                price: event.price - promoDiscount / quantity, // Original price minus promo discount
+                eventId: event.id,
+                userId: userId,
+                transactionId: transaction.id, // Link each ticket to the transaction
+            }));
+
+            await prisma.ticket.createMany({
+                data: ticketsData,
+            });
+
+            // Deduct user balance if final price is greater than 0
+            if (finalPrice > 0) {
+                await prisma.user.update({
+                    where: { id: userId },
                     data: {
-                        type: ticketType as TicketType,
-                        price: event.price,
-                        eventId: event.id,
-                        userId: userId,
+                        balance: {
+                            decrement: finalPrice,
+                        },
                     },
                 });
             }
 
+            // Deduct points used
             if (pointsUsed > 0) {
                 await prisma.user.update({
                     where: { id: userId },
                     data: {
+                        pointsEarned: {
+                            decrement: pointsUsed,
+                        },
                         pointsRedeemed: {
                             increment: pointsUsed,
                         },
                     },
                 });
             }
-
-            await prisma.transaction.create({
-                data: {
-                    amount: finalPrice,
-                    userId: userId,
-                },
-            });
 
             res.status(201).json({ message: "Tickets purchased successfully", tickets: quantity });
         });
