@@ -27,3 +27,14 @@ export const currencyFormatOptions: Intl.NumberFormatOptions = {
     currency: "IDR",
     minimumFractionDigits: 0,
 };
+
+export function generateRandomColor() {
+    const r = Math.floor(Math.random() * 255);
+    const g = Math.floor(Math.random() * 255);
+    const b = Math.floor(Math.random() * 255);
+    return `rgba(${r}, ${g}, ${b}, 0.6)`;
+}
+
+export function generateBorderColor(backgroundColor: string) {
+    return backgroundColor.replace("0.6", "1");
+}

@@ -52,14 +52,13 @@ export default function ProductList({ limitDefault, category = "" }: { limitDefa
     const renderPageNumbers = () => {
         const pageNumbers = [];
 
+        // Show all pages if the total pages are 3 or fewer
         if (totalPages <= 3) {
             for (let i = 1; i <= totalPages; i++) {
                 pageNumbers.push(
                     <button
                         key={i}
-                        className={`px-3 py-1 ${
-                            currPage === i ? "bg-blue-500 text-white" : "bg-white text-gray-700"
-                        } rounded border`}
+                        className={`px-3 py-1 ${currPage === i ? "bg-blue-500 text-white" : "bg-white text-gray-700"} rounded border`}
                         onClick={() => setCurrPage(i)}
                     >
                         {i}
@@ -67,19 +66,19 @@ export default function ProductList({ limitDefault, category = "" }: { limitDefa
                 );
             }
         } else {
-            if (currPage > 2) {
-                pageNumbers.push(
-                    <button
-                        key={1}
-                        className={`px-3 py-1 ${
-                            currPage === 1 ? "bg-blue-500 text-white" : "bg-white text-gray-700"
-                        } rounded border`}
-                        onClick={() => setCurrPage(1)}
-                    >
-                        1
-                    </button>,
-                );
+            // First page
+            pageNumbers.push(
+                <button
+                    key={1}
+                    className={`px-3 py-1 ${currPage === 1 ? "bg-blue-500 text-white" : "bg-white text-gray-700"} rounded border`}
+                    onClick={() => setCurrPage(1)}
+                >
+                    1
+                </button>,
+            );
 
+            // Show left ellipsis if current page is greater than 3
+            if (currPage > 3) {
                 pageNumbers.push(
                     <span key="left-ellipsis" className="px-2">
                         ...
@@ -87,6 +86,7 @@ export default function ProductList({ limitDefault, category = "" }: { limitDefa
                 );
             }
 
+            // Add middle pages dynamically based on the current page
             const startPage = Math.max(2, currPage - 1);
             const endPage = Math.min(totalPages - 1, currPage + 1);
 
@@ -94,9 +94,7 @@ export default function ProductList({ limitDefault, category = "" }: { limitDefa
                 pageNumbers.push(
                     <button
                         key={i}
-                        className={`px-3 py-1 ${
-                            currPage === i ? "bg-blue-500 text-white" : "bg-white text-gray-700"
-                        } rounded border`}
+                        className={`px-3 py-1 ${currPage === i ? "bg-blue-500 text-white" : "bg-white text-gray-700"} rounded border`}
                         onClick={() => setCurrPage(i)}
                     >
                         {i}
@@ -104,28 +102,30 @@ export default function ProductList({ limitDefault, category = "" }: { limitDefa
                 );
             }
 
-            if (currPage < totalPages - 1) {
+            // Show right ellipsis if the current page is far from the last page
+            if (currPage < totalPages - 2) {
                 pageNumbers.push(
                     <span key="right-ellipsis" className="px-2">
                         ...
                     </span>,
                 );
-                pageNumbers.push(
-                    <button
-                        key={totalPages}
-                        className={`px-3 py-1 ${
-                            currPage === totalPages ? "bg-blue-500 text-white" : "bg-white text-gray-700"
-                        } rounded border`}
-                        onClick={() => setCurrPage(totalPages)}
-                    >
-                        {totalPages}
-                    </button>,
-                );
             }
+
+            // Last page
+            pageNumbers.push(
+                <button
+                    key={totalPages}
+                    className={`px-3 py-1 ${currPage === totalPages ? "bg-blue-500 text-white" : "bg-white text-gray-700"} rounded border`}
+                    onClick={() => setCurrPage(totalPages)}
+                >
+                    {totalPages}
+                </button>,
+            );
         }
 
         return pageNumbers;
     };
+
     return (
         <>
             <div className="mt-6 grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-6 md:grid-cols-4 md:gap-y-0 lg:gap-x-8">
@@ -156,7 +156,7 @@ export default function ProductList({ limitDefault, category = "" }: { limitDefa
                             <p className="mt-1 text-xs text-gray-500 mb-2">{product.location}</p>
                             <div className="flex justify-between">
                                 <p className="mt-1 text-sm font-medium text-gray-900">
-                                    {product.price === 0 ? "FREE" : formatCurrency(product.price)}
+                                    {formatCurrency(product.price)}
                                 </p>
                                 <span className="text-xs flex flex-row items-center">
                                     <StarIcon className="h-4 w-4 mr-1 text-yellow-400" />
