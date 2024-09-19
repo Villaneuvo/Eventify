@@ -300,11 +300,6 @@ export default function NavigationBar() {
                                         >
                                             <div className="flex-auto">
                                                 <Link
-                                                    // href={
-                                                    //     session?.user?.role === "ORGANIZER"
-                                                    //         ? `${item.href}/event-organizer`
-                                                    //         : `${item.href}/attendee`
-                                                    // }
                                                     href={
                                                         (item.name === "Good day," &&
                                                             session?.user?.role === "ORGANIZER") ||

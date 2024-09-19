@@ -126,8 +126,6 @@ export const getEventById = async (req: Request, res: Response) => {
 
 export const createEvent = async (req: Request, res: Response) => {
     try {
-        console.log(req.body);
-
         const parsedData = createEventSchema.parse(req.body);
 
         await prisma.$transaction(async (prisma) => {
